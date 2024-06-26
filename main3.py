@@ -15,16 +15,13 @@ import aiohttp
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-if 'sidebar_state' not in st.session_state:
-    st.session_state.sidebar_state = 'expanded'
-    
-
 st.set_page_config(
     layout="wide",
     page_title="Хадисите на Мохамед(С.А.С)",
     page_icon='logo.png',
-    initial_sidebar_state=st.session_state.sidebar_state
+    initial_sidebar_state='expanded'
 )
+
 
 
 st.markdown("""
@@ -581,8 +578,7 @@ async def main_async():
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
                                 # display_chapter(c, chapter[0])
-                                st.session_state.sidebar_state = 'collapsed'
-                                st.experimental_rerun()
+
                 # Add a divider after each book with matching results, except for the last one
                 if matching_pages and i < len(books) - 1:
                     st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
@@ -601,8 +597,7 @@ async def main_async():
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
                                     # display_chapter(c, chapter[0])
-                                    st.session_state.sidebar_state = 'collapsed'
-                                    st.experimental_rerun()
+
                 
                 # Add a divider after each book, except for the last one
                 if i < len(books) - 1:
@@ -625,14 +620,12 @@ async def main_async():
             if st.button("< ПРЕДИШЕН"):
                 if st.session_state.chapter_index > 0:
                     st.session_state.chapter_index -= 1
-                    st.session_state.sidebar_state = 'collapsed'
-                    st.experimental_rerun()
+
         with col2:
             if st.button("СЛЕДВАЩ >"):
                 if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                     st.session_state.chapter_index += 1
-                    st.session_state.sidebar_state = 'collapsed'
-                    st.experimental_rerun()
+
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
