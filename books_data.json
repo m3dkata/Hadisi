@@ -1,0 +1,121 @@
+[
+  {
+    "book_name": "bukhari",
+    "english_name": "Sahih al-Bukhari",
+    "arabic_name": "صحيح البخاري",
+    "start_page": 1,
+    "end_page": 97
+  },
+  {
+    "book_name": "muslim",
+    "english_name": "Sahih Muslim",
+    "arabic_name": "صحيح مسلم",
+    "start_page": 1,
+    "end_page": 56
+  },
+  {
+    "book_name": "nasai",
+    "english_name": "Sunan an-Nasa'i",
+    "arabic_name": "سنن النسائي",
+    "start_page": 1,
+    "end_page": 51
+  },
+  {
+    "book_name": "abudawud",
+    "english_name": "Sunan Abi Dawud",
+    "arabic_name": "سنن أبي داود",
+    "start_page": 1,
+    "end_page": 43
+  },
+  {
+    "book_name": "tirmidhi",
+    "english_name": "Jami` at-Tirmidhi",
+    "arabic_name": "جامع الترمذي",
+    "start_page": 1,
+    "end_page": 49
+  },
+  {
+    "book_name": "ibnmajah",
+    "english_name": "Sunan Ibn Majah",
+    "arabic_name": "سنن ابن ماجه",
+    "start_page": 1,
+    "end_page": 37
+  },
+  {
+    "book_name": "malik",
+    "english_name": "Muwatta Malik",
+    "arabic_name": "موطأ مالك",
+    "start_page": 1,
+    "end_page": 61
+  },
+  {
+    "book_name": "ahmad",
+    "english_name": "Musnad Ahmad",
+    "arabic_name": "مسند أحمد",
+    "start_page": 1,
+    "end_page": 31
+  },
+  {
+    "book_name": "darimi",
+    "english_name": "Sunan ad-Darimi",
+    "arabic_name": "سنن الدارمي",
+    "start_page": 1,
+    "end_page": 23
+  },
+  {
+    "book_name": "forty",
+    "english_name": "Collections of Forty",
+    "arabic_name": "الأربعينات",
+    "start_page": 1,
+    "end_page": 10
+  },
+  {
+    "book_name": "nawawi40",
+    "english_name": "An-Nawawi's 40 Hadith",
+    "arabic_name": "الأربعون النووية",
+    "start_page": 1,
+    "end_page": 10
+  },
+  {
+    "book_name": "riyadussalihin",
+    "english_name": "Riyad as-Salihin",
+    "arabic_name": "رياض الصالحين",
+    "start_page": 1,
+    "end_page": 19
+  },
+  {
+    "book_name": "mishkat",
+    "english_name": "Mishkat al-Masabih",
+    "arabic_name": "مشكاة المصابيح",
+    "start_page": 1,
+    "end_page": 24
+  },
+  {
+    "book_name": "adab",
+    "english_name": "Al-Adab Al-Mufrad",
+    "arabic_name": "الأدب المفرد",
+    "start_page": 1,
+    "end_page": 57
+  },
+  {
+    "book_name": "shamail",
+    "english_name": "Ash-Shama'il Al-Muhammadiyah",
+    "arabic_name": "الشمائل المحمدية",
+    "start_page": 1,
+    "end_page": 56
+  },
+  {
+    "book_name": "bulugh",
+    "english_name": "Bulugh al-Maram",
+    "arabic_name": "بلوغ المرام",
+    "start_page": 1,
+    "end_page": 16
+  },
+  {
+    "book_name": "hisn",
+    "english_name": "Hisn al-Muslim",
+    "arabic_name": "حصن المسلم",
+    "start_page": 1,
+    "end_page": 268
+  }
+]

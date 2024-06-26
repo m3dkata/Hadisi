@@ -1,0 +1,16 @@
+[theme]
+base="dark"
+# primaryColor =
+# backgroundColor =
+# secondaryBackgroundColor =
+# textColor =
+# font =
+
+[client]
+# toolbarMode = "auto"
+showSidebarNavigation = false
+
+[server]
+enableCORS = false
+enableXsrfProtection = false
+maxUploadSize = 200
