@@ -361,11 +361,11 @@ def display_chapter(cursor, chapter_id):
         st.divider()
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.subheader(f"{chapter_data[0]}: {chapter_data[3].strip('Глава:')}")  # Include echapno before chapter_data[3]
+            st.subheader(f"{chapter_data[0]}. {chapter_data[3].strip('Глава:')}")  # Include echapno before chapter_data[3]
         with col2:
-            st.subheader(chapter_data[2])
+            st.subheader(f"{chapter_data[0]}. {chapter_data[2]}")
         with col3:
-            st.subheader(chapter_data[1].strip("Chapter:"))
+            st.subheader(f"{chapter_data[0]}. {chapter_data[1].strip('Chapter:')}")
         st.divider()
         col1, col2, col3 = st.columns(3)
         with col1:
