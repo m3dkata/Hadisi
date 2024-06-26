@@ -359,15 +359,17 @@ def display_chapter(cursor, chapter_id):
         with col2:
             st.subheader(f"{chapter_data[9]}. {chapter_data[11]}")  # book_page_number and book_page_english_name
         st.divider()
-        col1, col2, col3 = st.columns(3)
+        # col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         with col1:
             st.subheader(f"{chapter_data[0]}. {chapter_data[3].strip('Глава:')}")  # Include echapno before chapter_data[3]
         with col2:
             st.subheader(f"{chapter_data[0]}. {chapter_data[2]}")
-        with col3:
-            st.subheader(f"{chapter_data[0]}. {chapter_data[1].strip('Chapter:')}")
-        st.divider()
-        col1, col2, col3 = st.columns(3)
+        # with col3:
+        #     st.subheader(f"{chapter_data[0]}. {chapter_data[1].strip('Chapter:')}")
+        # st.divider()
+        # col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         with col1:
             bulgarian_text = chapter_data[8]
             bulgarian_text = bulgarian_text.replace("(ﷺ)", "(С.А.С)")
@@ -375,11 +377,11 @@ def display_chapter(cursor, chapter_id):
             st.write(bulgarian_text)
         with col2:
             st.write(chapter_data[7])
-        with col3:
-            english_text = chapter_data[6]
-            english_text = english_text.replace("(ﷺ)", "(p.b.u.h)")
-            english_text = english_text.replace("`", "")
-            st.write(english_text)
+        # with col3:
+        #     english_text = chapter_data[6]
+        #     english_text = english_text.replace("(ﷺ)", "(p.b.u.h)")
+        #     english_text = english_text.replace("`", "")
+        #     st.write(english_text)
         
         # Display the reference table
         st.caption("Референции в https://sunnah.com")
