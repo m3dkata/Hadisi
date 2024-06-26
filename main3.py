@@ -705,10 +705,10 @@ async def main_async():
     prev_button = st.button("< ПРЕДИШЕН", key="prev_button")
     next_button = st.button("СЛЕДВАЩ >", key="next_button")
 
-    st.markdown(footer.format(
-        "< ПРЕДИШЕН" if not prev_button else "",
-        "СЛЕДВАЩ >" if not next_button else ""
-    ), unsafe_allow_html=True)
+    # st.markdown(footer.format(
+    #     "< ПРЕДИШЕН" if not prev_button else "",
+    #     "СЛЕДВАЩ >" if not next_button else ""
+    # ), unsafe_allow_html=True)
 
     # Handle button clicks
     if prev_button:
