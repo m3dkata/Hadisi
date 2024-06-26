@@ -31,13 +31,13 @@ st.set_page_config(
 hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}
-.stActionButton {visibility: visible;}
+.stActionButton {visibility: hidden;}
 .block-container {
     padding-top: 1rem;
     padding-left: 1rem;
     padding-right: 1rem;}
 footer {visibility: hidden;}
-header {visibility: hidden;}
+header {visibility: visible;}
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -696,34 +696,25 @@ async def main_async():
     """, unsafe_allow_html=True)
 
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
+    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
-        # Create a container for the buttons
-        button_container = st.container()
-        
-        # Use the container to hold the buttons
-        with button_container:
-            # Create a single row for buttons
-            col1, col2 = st.columns([1,1])
-            
-            # Place buttons in the columns
-            with col1:
-                if st.button("< ПРЕДИШЕН", key="prev_button"):
-                    if st.session_state.chapter_index > 0:
-                        st.session_state.chapter_index -= 1
-                        st.experimental_rerun()
-            
-            with col2:
-                if st.button("СЛЕДВАЩ >", key="next_button"):
-                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                        st.session_state.chapter_index += 1
-                        st.experimental_rerun()
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("< ПРЕДИШЕН"):
+                if st.session_state.chapter_index > 0:
+                    st.session_state.chapter_index -= 1
+        with col2:
+            if st.button("СЛЕДВАЩО >"):
+                if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                     st.session_state.chapter_index += 1
+
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
         current_chapter_index = st.session_state.chapter_index
         chapters = st.session_state.chapters
         if 0 <= current_chapter_index < len(chapters):
-            display_chapter(c, chapters[current_chapter_index][0])  # Access the chapter ID correctly
+            display_chapter(c, chapters[current_chapter_index][0]) # Access the chapter ID correctly
 
     conn.close()
 
