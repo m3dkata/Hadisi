@@ -675,26 +675,6 @@ async def main_async():
     if "chapter_selected" not in st.session_state:
         st.session_state.chapter_selected = False
 
-    # Add custom CSS to force buttons to stay side by side
-    st.markdown("""
-    <style>
-        .stButton {
-            display: inline-block;
-            width: 48%;
-            margin: 0 1%;
-        }
-        .stButton > button {
-            width: 100%;
-        }
-        @media (max-width: 640px) {
-            .stButton > button {
-                font-size: 12px;
-                padding: 0.5rem;
-            }
-        }
-    </style>
-    """, unsafe_allow_html=True)
-
     # Add custom CSS to position buttons fixed at bottom left and bottom right
     st.markdown("""
     <style>
