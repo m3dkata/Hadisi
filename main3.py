@@ -37,7 +37,7 @@ hide_streamlit_style = """
     padding-left: 1rem;
     padding-right: 1rem;}
 footer {visibility: hidden;}
-header {visibility: visible;}
+header {visibility: hidden;}
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -716,7 +716,7 @@ async def main_async():
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
         st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
+        col1, col2 = st.columns([1, 1])
         with col1:
             if st.button("< ПРЕДИШЕН"):
                 if st.session_state.chapter_index > 0:
