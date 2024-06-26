@@ -22,6 +22,8 @@ st.set_page_config(
     initial_sidebar_state='expanded'
 )
 
+
+
 st.markdown("""
 <style>
     .sidebar-divider {
@@ -30,50 +32,6 @@ st.markdown("""
         border-top: 2px solid red;
         color: red;
     }
-</style>
-""", unsafe_allow_html=True)
-
-# Add custom CSS for the footer and buttons
-st.markdown("""
-<style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: #f0f2f6;
-        color: black;
-        text-align: center;
-        padding: 10px 0;
-        z-index: 999;
-    }
-    .footer-content {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-    .footer-button {
-        background-color: #f0f2f6;
-        border: none;
-        color: black;
-        padding: 10px 20px;
-        text-align: center;
-        text-decoration: none;
-        display: inline-block;
-        font-size: 16px;
-        margin: 4px 2px;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-    .footer-button:disabled {
-        background-color: #cccccc;
-        color: #666666;
-        cursor: not-allowed;
-    }
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
 </style>
 """, unsafe_allow_html=True)
 
@@ -699,67 +657,56 @@ async def main_async():
     if "chapter_selected" not in st.session_state:
         st.session_state.chapter_selected = False
 
-    # Footer with buttons
-    footer = """
-        <div class="footer">
-            <div class="footer-content">
-                <button 
-                    class="footer-button" 
-                    onclick="handlePrevClick()" 
-                    {prev_disabled}
-                >
-                    < ПРЕДИШЕН
-                </button>
-                <button 
-                    class="footer-button" 
-                    onclick="handleNextClick()" 
-                    {next_disabled}
-                >
-                    СЛЕДВАЩ >
-                </button>
-            </div>
-        </div>
-        <script>
-        function handlePrevClick() {{
-            if ({chapter_index} > 0) {{
-                window.parent.postMessage({{
-                    type: 'streamlit:setComponentValue',
-                    key: 'chapter_index',
-                    value: {chapter_index} - 1
-                }}, '*');
-            }}
-        }}
-        function handleNextClick() {{
-            if ({chapter_index} < {max_index}) {{
-                window.parent.postMessage({{
-                    type: 'streamlit:setComponentValue',
-                    key: 'chapter_index',
-                    value: {chapter_index} + 1
-                }}, '*');
-            }}
-        }}
-        </script>
-    """
+    # Add custom CSS to force buttons to stay side by side
+    st.markdown("""
+    <style>
+        .stButton {
+            display: inline-block;
+            width: 48%;
+            margin: 0 1%;
+        }
+        .stButton > button {
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .stButton > button {
+                font-size: 12px;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
-# Render the footer
-    st.markdown(
-        footer.format(
-            chapter_index=st.session_state.chapter_index,
-            max_index=len(st.session_state.chapters) - 1,
-            prev_disabled="disabled" if st.session_state.chapter_index == 0 else "",
-            next_disabled="disabled" if st.session_state.chapter_index == len(st.session_state.chapters) - 1 else ""
-        ),
-        unsafe_allow_html=True
-    )
-
-    # Check for changes in chapter_index
-    if 'previous_chapter_index' not in st.session_state:
-        st.session_state.previous_chapter_index = st.session_state.chapter_index
-
-    if st.session_state.previous_chapter_index != st.session_state.chapter_index:
-        st.session_state.previous_chapter_index = st.session_state.chapter_index
-        st.experimental_rerun()
+    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
+    if st.session_state.chapter_selected:
+        # Create a container for the buttons
+        button_container = st.container()
         
+        # Use the container to hold the buttons
+        with button_container:
+            # Create a single row for buttons
+            col1, col2 = st.columns([1,1])
+            
+            # Place buttons in the columns
+            with col1:
+                if st.button("< ПРЕДИШЕН", key="prev_button"):
+                    if st.session_state.chapter_index > 0:
+                        st.session_state.chapter_index -= 1
+                        st.experimental_rerun()
+            
+            with col2:
+                if st.button("СЛЕДВАЩ >", key="next_button"):
+                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                        st.session_state.chapter_index += 1
+                        st.experimental_rerun()
+
+    # Display the current chapter based on the chapter index
+    if "chapter_index" in st.session_state and "chapters" in st.session_state:
+        current_chapter_index = st.session_state.chapter_index
+        chapters = st.session_state.chapters
+        if 0 <= current_chapter_index < len(chapters):
+            display_chapter(c, chapters[current_chapter_index][0])  # Access the chapter ID correctly
+
     conn.close()
 
 if __name__ == "__main__":
