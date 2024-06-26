@@ -656,6 +656,26 @@ async def main_async():
     if "chapter_selected" not in st.session_state:
         st.session_state.chapter_selected = False
 
+    # Add custom CSS to force buttons to stay side by side
+    st.markdown("""
+    <style>
+        .stButton {
+            display: inline-block;
+            width: 48%;
+            margin: 0 1%;
+        }
+        .stButton > button {
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .stButton > button {
+                font-size: 12px;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
         # Create a container for the buttons
@@ -663,28 +683,21 @@ async def main_async():
         
         # Use the container to hold the buttons
         with button_container:
+            # Create a single row for buttons
             col1, col2 = st.columns([1,1])
             
+            # Place buttons in the columns
             with col1:
-                if st.button("< ПРЕДИШЕН"):
+                if st.button("< ПРЕДИШЕН", key="prev_button"):
                     if st.session_state.chapter_index > 0:
                         st.session_state.chapter_index -= 1
                         st.experimental_rerun()
             
             with col2:
-                if st.button("СЛЕДВАЩ >"):
+                if st.button("СЛЕДВАЩ >", key="next_button"):
                     if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                         st.session_state.chapter_index += 1
                         st.experimental_rerun()
-
-        # Optional: Add custom CSS to style the container
-        st.markdown("""
-        <style>
-        .stButton > button {
-            width: 50%;
-        }
-        </style>
-        """, unsafe_allow_html=True)
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
