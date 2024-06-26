@@ -15,11 +15,13 @@ import aiohttp
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-st.set_page_config(layout="wide",
-                   page_title="Хадисите на Мохамед(С.А.С)",
-                   page_icon='logo.png',
-                   initial_sidebar_state='expanded'
-                   )
+st.set_page_config(
+    layout="wide",
+    page_title="Хадисите на Мохамед(С.А.С)",
+    page_icon='logo.png',
+    initial_sidebar_state=st.session_state.sidebar_state
+)
+
 
 st.markdown("""
 <style>
@@ -30,19 +32,6 @@ st.markdown("""
         color: red;
     }
 </style>
-""", unsafe_allow_html=True)
-
-st.markdown("""
-<script>
-function collapse_sidebar() {
-    const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
-    const sidebarContent = sidebar.querySelector('[data-testid="stSidebarContent"]');
-    const sidebarToggle = sidebar.querySelector('button[kind="header"]');
-    if (!sidebarContent.classList.contains('collapsed')) {
-        sidebarToggle.click();
-    }
-}
-</script>
 """, unsafe_allow_html=True)
 
 # Initialize the translator
@@ -530,6 +519,9 @@ async def main_async():
     #                 os.remove(file)
     #         st.success("Данните за книгата са изчистени. Моля, опреснете страницата, за да направите повторно изчерпване.")
 
+    if 'sidebar_state' not in st.session_state:
+        st.session_state.sidebar_state = 'expanded'
+    
     conn = sqlite3.connect('hadiths.db')
     c = conn.cursor()
 
@@ -582,12 +574,13 @@ async def main_async():
                         chapters = c.fetchall()
                         for chapter in chapters:
                             chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
-                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=lambda: st.markdown("<script>collapse_sidebar()</script>", unsafe_allow_html=True)):
+                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
                                 st.session_state.chapter_index = chapters.index(chapter)
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
                                 # display_chapter(c, chapter[0])
-                
+                                st.session_state.sidebar_state = 'collapsed'
+                                st.experimental_rerun()
                 # Add a divider after each book with matching results, except for the last one
                 if matching_pages and i < len(books) - 1:
                     st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
@@ -601,11 +594,13 @@ async def main_async():
                             c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page[0],))
                             chapters = c.fetchall()
                             for chapter in chapters:
-                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=lambda: st.markdown("<script>collapse_sidebar()</script>", unsafe_allow_html=True)):
+                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
                                     # display_chapter(c, chapter[0])
+                                    st.session_state.sidebar_state = 'collapsed'
+                                    st.experimental_rerun()
                 
                 # Add a divider after each book, except for the last one
                 if i < len(books) - 1:
@@ -628,10 +623,14 @@ async def main_async():
             if st.button("< ПРЕДИШЕН"):
                 if st.session_state.chapter_index > 0:
                     st.session_state.chapter_index -= 1
+                    st.session_state.sidebar_state = 'collapsed'
+                    st.experimental_rerun()
         with col2:
             if st.button("СЛЕДВАЩ >"):
                 if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                     st.session_state.chapter_index += 1
+                    st.session_state.sidebar_state = 'collapsed'
+                    st.experimental_rerun()
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
