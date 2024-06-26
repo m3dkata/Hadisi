@@ -15,6 +15,10 @@ import aiohttp
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+if 'sidebar_state' not in st.session_state:
+    st.session_state.sidebar_state = 'expanded'
+    
+
 st.set_page_config(
     layout="wide",
     page_title="Хадисите на Мохамед(С.А.С)",
@@ -519,9 +523,7 @@ async def main_async():
     #                 os.remove(file)
     #         st.success("Данните за книгата са изчистени. Моля, опреснете страницата, за да направите повторно изчерпване.")
 
-    if 'sidebar_state' not in st.session_state:
-        st.session_state.sidebar_state = 'expanded'
-    
+
     conn = sqlite3.connect('hadiths.db')
     c = conn.cursor()
 
