@@ -697,12 +697,15 @@ async def main_async():
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
         st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
-        if st.button("< ПРЕДИШЕН", key="prev_button"):
-            if st.session_state.chapter_index > 0:
-                st.session_state.chapter_index -= 1
-        if st.button("СЛЕДВАЩ >", key="next_button"):
-            if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                st.session_state.chapter_index += 1
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("< ПРЕДИШЕН"):
+                if st.session_state.chapter_index > 0:
+                    st.session_state.chapter_index -= 1
+        with col2:
+            if st.button("СЛЕДВАЩ >"):
+                if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                    st.session_state.chapter_index += 1
         st.markdown('</div>', unsafe_allow_html=True)
 
 
