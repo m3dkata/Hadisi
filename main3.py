@@ -356,6 +356,22 @@ def display_chapter(cursor, chapter_id):
     chapter_data = cursor.fetchone()
 
     if chapter_data:
+        # Custom CSS for responsive design
+        st.markdown("""
+        <style>
+        @media (max-width: 640px) {
+            .stApp {
+                font-size: 14px;
+            }
+            .stApp h1, .stApp h2, .stApp h3 {
+                font-size: 18px;
+            }
+            .stApp .stMarkdown p {
+                font-size: 14px;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             st.subheader(f"{chapter_data[9]}. {chapter_data[12].upper()}")  # book_page_arabic_name
