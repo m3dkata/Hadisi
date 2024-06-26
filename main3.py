@@ -41,6 +41,35 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Add custom CSS for the footer
+st.markdown("""
+<style>
+    .footer-mine {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #f0f2f6;
+        color: black;
+        text-align: center;
+        padding: 10px 0;
+        z-index: 999;
+    }
+    .footer-mine-content {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+    .stButton > button {
+        width: 150px;
+    }
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+</style>
+""", unsafe_allow_html=True)
+
 # Initialize the translator
 translator = Translator()
 
@@ -663,48 +692,34 @@ async def main_async():
     if "chapter_selected" not in st.session_state:
         st.session_state.chapter_selected = False
 
-    # Add custom CSS to force buttons to stay side by side
-    st.markdown("""
-    <style>
-        .stButton {
-            display: inline-block;
-            width: 48%;
-            margin: 0 1%;
-        }
-        .stButton > button {
-            width: 100%;
-        }
-        @media (max-width: 640px) {
-            .stButton > button {
-                font-size: 12px;
-                padding: 0.5rem;
-            }
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    # Footer with buttons
+    footer = """
+    <div class="footer-mine">
+        <div class="footer-mine-content">
+            <div>{}</div>
+            <div>{}</div>
+        </div>
+    </div>
+    """
 
-    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
-    if st.session_state.chapter_selected:
-        # Create a container for the buttons
-        button_container = st.container()
-        
-        # Use the container to hold the buttons
-        with button_container:
-            # Create a single row for buttons
-            col1, col2 = st.columns([1,1])
-            
-            # Place buttons in the columns
-            with col1:
-                if st.button("< ПРЕДИШЕН", key="prev_button"):
-                    if st.session_state.chapter_index > 0:
-                        st.session_state.chapter_index -= 1
-                        st.experimental_rerun()
-            
-            with col2:
-                if st.button("СЛЕДВАЩ >", key="next_button"):
-                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                        st.session_state.chapter_index += 1
-                        st.experimental_rerun()
+    prev_button = st.button("< ПРЕДИШЕН", key="prev_button")
+    next_button = st.button("СЛЕДВАЩ >", key="next_button")
+
+    st.markdown(footer.format(
+        "< ПРЕДИШЕН" if not prev_button else "",
+        "СЛЕДВАЩ >" if not next_button else ""
+    ), unsafe_allow_html=True)
+
+    # Handle button clicks
+    if prev_button:
+        if st.session_state.chapter_index > 0:
+            st.session_state.chapter_index -= 1
+            st.experimental_rerun()
+
+    if next_button:
+        if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+            st.session_state.chapter_index += 1
+            st.experimental_rerun()
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
