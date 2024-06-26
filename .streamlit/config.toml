@@ -8,9 +8,9 @@ base="dark"
 
 [client]
 # toolbarMode = "auto"
-showSidebarNavigation = false
+showSidebarNavigation = true
 
 [server]
-enableCORS = false
-enableXsrfProtection = false
+enableCORS = true
+enableXsrfProtection = true
 maxUploadSize = 200
