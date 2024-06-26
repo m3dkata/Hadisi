@@ -1,0 +1,4 @@
+googletrans==3.1.0a0
+aiohttp
+beautifulsoup4
+asyncio
