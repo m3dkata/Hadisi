@@ -590,7 +590,7 @@ async def main_async():
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
-                                    display_chapter(c, chapter[0])
+                                    # display_chapter(c, chapter[0])
                 
                 # Add a divider after each book, except for the last one
                 if i < len(books) - 1:
