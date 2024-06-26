@@ -612,11 +612,11 @@ async def main_async():
     if st.session_state.chapter_selected:
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("ПРЕДИШЕН"):
+            if st.button("< ПРЕДИШЕН"):
                 if st.session_state.chapter_index > 0:
                     st.session_state.chapter_index -= 1
         with col2:
-            if st.button("СЛЕДВАЩ"):
+            if st.button("СЛЕДВАЩ >"):
                 if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                     st.session_state.chapter_index += 1
 
