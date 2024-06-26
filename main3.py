@@ -429,10 +429,7 @@ def display_chapter(cursor, chapter_id):
         # st.divider()
         # col1, col2, col3 = st.columns(3)
         # Hadith text
-        bulgarian_text = chapter_data[8]
-        bulgarian_text = bulgarian_text.replace("(ﷺ)", "(С.А.С)").replace("`", "")
-        bulgarian_text = bulgarian_text.replace('"""', "")
-        
+        bulgarian_text = chapter_data[8].replace("(ﷺ)", "(С.А.С)").replace("`", "")
         arabic_text = chapter_data[7]
         st.markdown(f"""
         <div class="custom-container">
