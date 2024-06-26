@@ -372,11 +372,11 @@ def display_chapter(cursor, chapter_id):
         .custom-text {
             word-wrap: break-word;
             overflow-wrap: break-word;
-            font-size: 14px;
+            font-size: 1.0em;
         }
         @media (max-width: 640px) {
             .custom-text {
-                font-size: 0.8em;
+                font-size: 0.9em;
             }
         }
         </style>
