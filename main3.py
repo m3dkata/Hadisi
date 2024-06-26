@@ -658,17 +658,33 @@ async def main_async():
 
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
-        col1, col2 = st.columns([1,1])
-        with col1:
-            if st.button("< ПРЕДИШЕН"):
-                if st.session_state.chapter_index > 0:
-                    st.session_state.chapter_index -= 1
+        # Create a container for the buttons
+        button_container = st.container()
+        
+        # Use the container to hold the buttons
+        with button_container:
+            col1, col2 = st.columns([1,1])
+            
+            with col1:
+                if st.button("< ПРЕДИШЕН"):
+                    if st.session_state.chapter_index > 0:
+                        st.session_state.chapter_index -= 1
+                        st.experimental_rerun()
+            
+            with col2:
+                if st.button("СЛЕДВАЩ >"):
+                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                        st.session_state.chapter_index += 1
+                        st.experimental_rerun()
 
-        with col2:
-            if st.button("СЛЕДВАЩ >"):
-                if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                    st.session_state.chapter_index += 1
-
+        # Optional: Add custom CSS to style the container
+        st.markdown("""
+        <style>
+        .stButton > button {
+            width: 100%;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
