@@ -356,56 +356,73 @@ def display_chapter(cursor, chapter_id):
     chapter_data = cursor.fetchone()
 
     if chapter_data:
-        # Custom CSS for responsive design
+        # Custom CSS for consistent two-column layout
         st.markdown("""
         <style>
-        @media (max-width: 640px) {
-            .stApp {
-                font-size: 12px;
-            }
-            .stApp h1, .stApp h2, .stApp h3 {
-                font-size: 14px;
-            }
-            .stApp .stMarkdown p {
-                font-size: 10px;
-            }
-            .stApp .row-widget.stButton > button {
-                font-size: 10px;
-                padding: 2px 4px;
-            }
+        .custom-container {
+            display: flex;
+            flex-wrap: nowrap;
+            width: 100%;
+        }
+        .custom-column {
+            width: 50%;
+            padding: 5px;
+            box-sizing: border-box;
         }
         .custom-text {
             word-wrap: break-word;
             overflow-wrap: break-word;
+            font-size: 14px;
+        }
+        @media (max-width: 640px) {
+            .custom-text {
+                font-size: 10px;
+            }
         }
         </style>
         """, unsafe_allow_html=True)
         # Book and chapter information
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"<h3 class='custom-text'>{chapter_data[9]}. {chapter_data[12].upper()}</h3>", unsafe_allow_html=True)
-        with col2:
-            st.markdown(f"<h3 class='custom-text'>{chapter_data[9]}. {chapter_data[11]}</h3>", unsafe_allow_html=True)
-        st.divider()
+        st.markdown(f"""
+        <div class="custom-container">
+            <div class="custom-column">
+                <h3 class="custom-text">{chapter_data[9]}. {chapter_data[12].upper()}</h3>
+            </div>
+            <div class="custom-column">
+                <h3 class="custom-text">{chapter_data[9]}. {chapter_data[11]}</h3>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
+
         # col1, col2, col3 = st.columns(3)
         # Chapter titles
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown(f"<h3 class='custom-text'>{chapter_data[0]}. {chapter_data[3].strip('Глава:')}</h3>", unsafe_allow_html=True)
-        with col2:
-            st.markdown(f"<h3 class='custom-text'>{chapter_data[0]}. {chapter_data[2]}</h3>", unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="custom-container">
+            <div class="custom-column">
+                <h3 class="custom-text">{chapter_data[0]}. {chapter_data[3].strip('Глава:')}</h3>
+            </div>
+            <div class="custom-column">
+                <h3 class="custom-text">{chapter_data[0]}. {chapter_data[2]}</h3>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)        
         # with col3:
         #     st.subheader(f"{chapter_data[0]}. {chapter_data[1].strip('Chapter:')}")
         # st.divider()
         # col1, col2, col3 = st.columns(3)
         # Hadith text
-        col1, col2 = st.columns(2)
-        with col1:
-            bulgarian_text = chapter_data[8].replace("(ﷺ)", "(С.А.С)").replace("`", "")
-            st.markdown(f"<p class='custom-text'>{bulgarian_text}</p>", unsafe_allow_html=True)
-        with col2:
-            arabic_text = chapter_data[7]
-            st.markdown(f"<p class='custom-text'>{arabic_text}</p>", unsafe_allow_html=True)
+        bulgarian_text = chapter_data[8].replace("(ﷺ)", "(С.А.С)").replace("`", "")
+        arabic_text = chapter_data[7]
+        st.markdown(f"""
+        <div class="custom-container">
+            <div class="custom-column">
+                <p class="custom-text">{bulgarian_text}</p>
+            </div>
+            <div class="custom-column">
+                <p class="custom-text">{arabic_text}</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
         # with col3:
         #     english_text = chapter_data[6]
