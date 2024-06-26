@@ -2,4 +2,4 @@ googletrans==3.1.0a0
 aiohttp
 beautifulsoup4
 asyncio
-streamlit==1.17.0
+streamlit==1.36.0
