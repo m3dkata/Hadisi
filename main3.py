@@ -695,18 +695,37 @@ async def main_async():
     </style>
     """, unsafe_allow_html=True)
 
-    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
+    # Add custom CSS to position buttons fixed at bottom left and bottom right
+    st.markdown("""
+    <style>
+        .fixed-buttons {
+            position: fixed;
+            bottom: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        .fixed-buttons .stButton {
+            width: auto;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
+        st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         with col1:
             if st.button("< ПРЕДИШЕН"):
                 if st.session_state.chapter_index > 0:
                     st.session_state.chapter_index -= 1
         with col2:
-            if st.button("СЛЕДВАЩО >"):
+            if st.button("СЛЕДВАЩ >"):
                 if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                     st.session_state.chapter_index += 1
+                    st.session_state.chapter_index += 1
+        st.markdown('</div>', unsafe_allow_html=True)
 
 
     # Display the current chapter based on the chapter index
