@@ -32,6 +32,19 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.markdown("""
+<script>
+function collapse_sidebar() {
+    const sidebar = window.parent.document.querySelector('[data-testid="stSidebar"]');
+    const sidebarContent = sidebar.querySelector('[data-testid="stSidebarContent"]');
+    const sidebarToggle = sidebar.querySelector('button[kind="header"]');
+    if (!sidebarContent.classList.contains('collapsed')) {
+        sidebarToggle.click();
+    }
+}
+</script>
+""", unsafe_allow_html=True)
+
 # Initialize the translator
 translator = Translator()
 
@@ -569,11 +582,11 @@ async def main_async():
                         chapters = c.fetchall()
                         for chapter in chapters:
                             chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
-                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
+                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=lambda: st.markdown("<script>collapse_sidebar()</script>", unsafe_allow_html=True)):
                                 st.session_state.chapter_index = chapters.index(chapter)
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
-                                display_chapter(c, chapter[0])
+                                # display_chapter(c, chapter[0])
                 
                 # Add a divider after each book with matching results, except for the last one
                 if matching_pages and i < len(books) - 1:
@@ -588,7 +601,7 @@ async def main_async():
                             c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page[0],))
                             chapters = c.fetchall()
                             for chapter in chapters:
-                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
+                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=lambda: st.markdown("<script>collapse_sidebar()</script>", unsafe_allow_html=True)):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
