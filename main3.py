@@ -681,7 +681,7 @@ async def main_async():
         st.markdown("""
         <style>
         .stButton > button {
-            width: 100%;
+            width: 50%;
         }
         </style>
         """, unsafe_allow_html=True)
