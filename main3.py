@@ -521,7 +521,7 @@ async def main_async():
     # Sidebar with tree-like structure
     HORIZONTAL_RED = "main_logo.png"
     ICON_RED = "logo.png"
-    st.logo(HORIZONTAL_RED, icon_image=ICON_RED)
+    st.logo("", icon_image=ICON_RED)
     # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
     st.header(":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
     # Search functionality
