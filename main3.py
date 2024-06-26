@@ -361,49 +361,60 @@ def display_chapter(cursor, chapter_id):
         <style>
         @media (max-width: 640px) {
             .stApp {
-                font-size: 14px;
+                font-size: 12px;
             }
             .stApp h1, .stApp h2, .stApp h3 {
-                font-size: 18px;
-            }
-            .stApp .stMarkdown p {
                 font-size: 14px;
             }
+            .stApp .stMarkdown p {
+                font-size: 10px;
+            }
+            .stApp .row-widget.stButton > button {
+                font-size: 10px;
+                padding: 2px 4px;
+            }
+        }
+        .custom-text {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         </style>
         """, unsafe_allow_html=True)
+        # Book and chapter information
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader(f"{chapter_data[9]}. {chapter_data[12].upper()}")  # book_page_arabic_name
+            st.markdown(f"<h3 class='custom-text'>{chapter_data[9]}. {chapter_data[12].upper()}</h3>", unsafe_allow_html=True)
         with col2:
-            st.subheader(f"{chapter_data[9]}. {chapter_data[11]}")  # book_page_number and book_page_english_name
+            st.markdown(f"<h3 class='custom-text'>{chapter_data[9]}. {chapter_data[11]}</h3>", unsafe_allow_html=True)
         st.divider()
         # col1, col2, col3 = st.columns(3)
+        # Chapter titles
         col1, col2 = st.columns(2)
         with col1:
-            st.subheader(f"{chapter_data[0]}. {chapter_data[3].strip('Глава:')}")  # Include echapno before chapter_data[3]
+            st.markdown(f"<h3 class='custom-text'>{chapter_data[0]}. {chapter_data[3].strip('Глава:')}</h3>", unsafe_allow_html=True)
         with col2:
-            st.subheader(f"{chapter_data[0]}. {chapter_data[2]}")
+            st.markdown(f"<h3 class='custom-text'>{chapter_data[0]}. {chapter_data[2]}</h3>", unsafe_allow_html=True)
         # with col3:
         #     st.subheader(f"{chapter_data[0]}. {chapter_data[1].strip('Chapter:')}")
         # st.divider()
         # col1, col2, col3 = st.columns(3)
+        # Hadith text
         col1, col2 = st.columns(2)
         with col1:
-            bulgarian_text = chapter_data[8]
-            bulgarian_text = bulgarian_text.replace("(ﷺ)", "(С.А.С)")
-            bulgarian_text = bulgarian_text.replace("`", "")
-            st.write(bulgarian_text)
+            bulgarian_text = chapter_data[8].replace("(ﷺ)", "(С.А.С)").replace("`", "")
+            st.markdown(f"<p class='custom-text'>{bulgarian_text}</p>", unsafe_allow_html=True)
         with col2:
-            st.write(chapter_data[7])
+            arabic_text = chapter_data[7]
+            st.markdown(f"<p class='custom-text'>{arabic_text}</p>", unsafe_allow_html=True)
+
         # with col3:
         #     english_text = chapter_data[6]
         #     english_text = english_text.replace("(ﷺ)", "(p.b.u.h)")
         #     english_text = english_text.replace("`", "")
         #     st.write(english_text)
         
-        # Display the reference table
-        st.caption("Референции в https://sunnah.com")
+        # References
+        st.markdown("<h4>Референции в https://sunnah.com</h4>", unsafe_allow_html=True)
         references = chapter_data[13]
         references = references.replace("Reference", "Референция")
         references = references.replace("Book", "Книга")
@@ -412,8 +423,7 @@ def display_chapter(cursor, chapter_id):
         references = re.sub(r'<a[^>]*>(.*?)</a>', r'\1', references)
         references = references.replace("In-book reference", "референция в книгата")
         references = references.replace("(deprecated numbering scheme)", "(отхвърлена схема за номериране)")
-        st.caption(references, unsafe_allow_html=True)
-
+        st.markdown(f"<p class='custom-text'>{references}</p>", unsafe_allow_html=True)
 def load_json(filename):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as f:
