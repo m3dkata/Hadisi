@@ -376,7 +376,7 @@ def display_chapter(cursor, chapter_id):
         }
         @media (max-width: 640px) {
             .custom-text {
-                font-size: 10px;
+                font-size: 0.8em;
             }
         }
         </style>
@@ -430,8 +430,8 @@ def display_chapter(cursor, chapter_id):
         #     english_text = english_text.replace("`", "")
         #     st.write(english_text)
         
-        # References
-        st.markdown("<h4>Референции в https://sunnah.com</h4>", unsafe_allow_html=True)
+        # Display the reference table
+        st.caption("Референции в https://sunnah.com")
         references = chapter_data[13]
         references = references.replace("Reference", "Референция")
         references = references.replace("Book", "Книга")
@@ -440,7 +440,8 @@ def display_chapter(cursor, chapter_id):
         references = re.sub(r'<a[^>]*>(.*?)</a>', r'\1', references)
         references = references.replace("In-book reference", "референция в книгата")
         references = references.replace("(deprecated numbering scheme)", "(отхвърлена схема за номериране)")
-        st.markdown(f"<p class='custom-text'>{references}</p>", unsafe_allow_html=True)
+        st.caption(references, unsafe_allow_html=True)
+
 def load_json(filename):
     if os.path.exists(filename):
         with open(filename, 'r', encoding='utf-8') as f:
