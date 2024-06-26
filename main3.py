@@ -591,7 +591,7 @@ async def main_async():
     ICON_RED = "logo.png"
     st.logo(HORIZONTAL_RED, icon_image=ICON_RED)
     # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
-    # st.subheader("Хадисите на пророка Мухаммед(С.А.С)(صلى الله عليه و سلم)")
+    st.subheader("Хадисите на пророка Мухаммед(С.А.С)(صلى الله عليه و سلم)")
     # Search functionality
     search_term = st.sidebar.text_input(
         "Търсене", 
