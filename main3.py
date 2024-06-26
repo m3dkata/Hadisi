@@ -36,7 +36,6 @@ footer {visibility: hidden;}
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-
 st.markdown("""
 <style>
     .sidebar-divider {
@@ -534,25 +533,6 @@ async def get_book_range(book_name):
     logger.warning(f"No book titles found for {book_name}, using default range")
     return 1, 10
 
-def custom_footer():
-    footer_container = st.container()
-    with footer_container:
-        st.markdown("<hr>", unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("< ПРЕДИШЕН", key="prev_button", use_container_width=True):
-                if "chapter_index" in st.session_state and st.session_state.chapter_index > 0:
-                    st.session_state.chapter_index -= 1
-                    st.experimental_rerun()
-        with col2:
-            if st.button("СЛЕДВАЩ >", key="next_button", use_container_width=True):
-                if "chapter_index" in st.session_state and "chapters" in st.session_state:
-                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                        st.session_state.chapter_index += 1
-                        st.experimental_rerun()
-
-
-
 async def main_async():
     create_database()
 
@@ -690,57 +670,54 @@ async def main_async():
         st.session_state.chapter_selected = False
 
     # Add custom CSS to force buttons to stay side by side
-    # st.markdown("""
-    # <style>
-    #     .stButton {
-    #         display: inline-block;
-    #         width: 48%;
-    #         margin: 0 1%;
-    #     }
-    #     .stButton > button {
-    #         width: 100%;
-    #     }
-    #     @media (max-width: 640px) {
-    #         .stButton > button {
-    #             font-size: 12px;
-    #             padding: 0.5rem;
-    #         }
-    #     }
-    # </style>
-    # """, unsafe_allow_html=True)
+    st.markdown("""
+    <style>
+        .stButton {
+            display: inline-block;
+            width: 48%;
+            margin: 0 1%;
+        }
+        .stButton > button {
+            width: 100%;
+        }
+        @media (max-width: 640px) {
+            .stButton > button {
+                font-size: 12px;
+                padding: 0.5rem;
+            }
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
-    # # Add "PREV" and "NEXT" buttons only if a chapter has been selected
-    # if st.session_state.chapter_selected:
-    #     # Create a container for the buttons
-    #     button_container = st.container()
+    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
+    if st.session_state.chapter_selected:
+        # Create a container for the buttons
+        button_container = st.container()
         
-    #     # Use the container to hold the buttons
-    #     with button_container:
-    #         # Create a single row for buttons
-    #         col1, col2 = st.columns([1,1])
+        # Use the container to hold the buttons
+        with button_container:
+            # Create a single row for buttons
+            col1, col2 = st.columns([1,1])
             
-    #         # Place buttons in the columns
-    #         with col1:
-    #             if st.button("< ПРЕДИШЕН", key="prev_button"):
-    #                 if st.session_state.chapter_index > 0:
-    #                     st.session_state.chapter_index -= 1
-    #                     st.experimental_rerun()
+            # Place buttons in the columns
+            with col1:
+                if st.button("< ПРЕДИШЕН", key="prev_button"):
+                    if st.session_state.chapter_index > 0:
+                        st.session_state.chapter_index -= 1
+                        st.experimental_rerun()
             
-    #         with col2:
-    #             if st.button("СЛЕДВАЩ >", key="next_button"):
-    #                 if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-    #                     st.session_state.chapter_index += 1
-    #                     st.experimental_rerun()
+            with col2:
+                if st.button("СЛЕДВАЩ >", key="next_button"):
+                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                        st.session_state.chapter_index += 1
+                        st.experimental_rerun()
 
     # Display the current chapter based on the chapter index
     if "chapter_index" in st.session_state and "chapters" in st.session_state:
         current_chapter_index = st.session_state.chapter_index
         chapters = st.session_state.chapters
         if 0 <= current_chapter_index < len(chapters):
-            display_chapter(c, chapters[current_chapter_index][0])
-
-    # Add the custom footer
-    custom_footer()
+            display_chapter(c, chapters[current_chapter_index][0])  # Access the chapter ID correctly
 
     conn.close()
 
