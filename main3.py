@@ -31,7 +31,7 @@ st.set_page_config(
 hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}
-.stActionButton {visibility: hidden;}
+.stActionButton {visibility: visible;}
 .block-container {
     padding-top: 1rem;
     padding-left: 1rem;
