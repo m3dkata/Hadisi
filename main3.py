@@ -657,63 +657,63 @@ async def main_async():
         st.session_state.chapter_selected = False
 
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
-if st.session_state.chapter_selected:
-    # Custom CSS for buttons
-    st.markdown("""
-    <style>
-    .custom-button-container {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-    }
-    .custom-button {
-        width: 48%;
-        padding: 10px;
-        text-align: center;
-        background-color: #f0f2f6;
-        color: #262730;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-    }
-    @media (max-width: 640px) {
-        .custom-button {
-            font-size: 12px;
-            padding: 8px;
+    if st.session_state.chapter_selected:
+        # Custom CSS for buttons
+        st.markdown("""
+        <style>
+        .custom-button-container {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
         }
-    }
-    </style>
-    """, unsafe_allow_html=True)
+        .custom-button {
+            width: 48%;
+            padding: 10px;
+            text-align: center;
+            background-color: #f0f2f6;
+            color: #262730;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        @media (max-width: 640px) {
+            .custom-button {
+                font-size: 12px;
+                padding: 8px;
+            }
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    # Custom HTML for buttons
-    button_html = f"""
-    <div class="custom-button-container">
-        <button class="custom-button" onclick="handlePrevClick()">< ПРЕДИШЕН</button>
-        <button class="custom-button" onclick="handleNextClick()">СЛЕДВАЩ ></button>
-    </div>
-    <script>
-    function handlePrevClick() {{
-        if ({st.session_state.chapter_index} > 0) {{
-            window.parent.postMessage({{
-                type: 'streamlit:setComponentValue',
-                key: 'chapter_index',
-                value: {st.session_state.chapter_index - 1}
-            }}, '*');
+        # Custom HTML for buttons
+        button_html = f"""
+        <div class="custom-button-container">
+            <button class="custom-button" onclick="handlePrevClick()">< ПРЕДИШЕН</button>
+            <button class="custom-button" onclick="handleNextClick()">СЛЕДВАЩ ></button>
+        </div>
+        <script>
+        function handlePrevClick() {{
+            if ({st.session_state.chapter_index} > 0) {{
+                window.parent.postMessage({{
+                    type: 'streamlit:setComponentValue',
+                    key: 'chapter_index',
+                    value: {st.session_state.chapter_index - 1}
+                }}, '*');
+            }}
         }}
-    }}
-    function handleNextClick() {{
-        if ({st.session_state.chapter_index} < {len(st.session_state.chapters) - 1}) {{
-            window.parent.postMessage({{
-                type: 'streamlit:setComponentValue',
-                key: 'chapter_index',
-                value: {st.session_state.chapter_index + 1}
-            }}, '*');
+        function handleNextClick() {{
+            if ({st.session_state.chapter_index} < {len(st.session_state.chapters) - 1}) {{
+                window.parent.postMessage({{
+                    type: 'streamlit:setComponentValue',
+                    key: 'chapter_index',
+                    value: {st.session_state.chapter_index + 1}
+                }}, '*');
+            }}
         }}
-    }}
-    </script>
-    """
-    st.markdown(button_html, unsafe_allow_html=True)
+        </script>
+        """
+        st.markdown(button_html, unsafe_allow_html=True)
 
 
     # Display the current chapter based on the chapter index
