@@ -32,6 +32,9 @@ hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}
 .stActionButton {visibility: hidden;}
+.block-container {
+padding-left: 1rem;
+padding-right: 1rem;}
 footer {visibility: hidden;}
 </style>
 """
