@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 st.set_page_config(
     layout="wide",
-    page_title="Хадисите на Мохамед(С.А.С)",
+    page_title="Хадисите на Мухаммед(С.А.С)",
     page_icon='logo.png',
     initial_sidebar_state='expanded',
     menu_items={
