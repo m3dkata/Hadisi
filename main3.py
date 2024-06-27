@@ -59,7 +59,7 @@ hide_streamlit_style = """
 #MainMenu {visibility: hidden;}
 .stActionButton {visibility: hidden;}
 .block-container {
-    padding-top: 1.5rem;
+    padding-top: 0.2rem;
     padding-left: 2rem;
     padding-right: 2rem;}
 footer {visibility: hidden;}
@@ -707,7 +707,7 @@ async def main_async():
         with col1:
             pass
         with col2:
-            st.image("logo.png")
+            st.image("logo.png", width=200, use_column_width="always")
         with col3:
             pass
         col3_text = st.columns(1)
