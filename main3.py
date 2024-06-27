@@ -47,7 +47,7 @@ hide_streamlit_style = """
     padding-left: 2rem;
     padding-right: 2rem;}
 footer {visibility: hidden;}
-header {visibility: visible;}
+header {visibility: hidden;}
 }
 </style>
 """
@@ -61,27 +61,45 @@ st.markdown("""
         border-top: 2px solid red;
         color: red;
     }
+    #github{
+        background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0iY3VycmVudENvbG9yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNvbG9yPSIjMzEzMzNGIj48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTguMDA2NjIgMC4zNTAwMDZDMy41NzkxNyAwLjM1MDAwNiAwIDMuODU1NCAwIDguMTkyMDZDMCAxMS42NTg2IDIuMjkzMjkgMTQuNTkyOSA1LjQ3NDcgMTUuNjMxNUM1Ljg3MjQ2IDE1LjcwOTUgNi4wMTgxNiAxNS40NjI3IDYuMDE4MTYgMTUuMjU1MUM2LjAxODE2IDE1LjA3MzMgNi4wMDUwNSAxNC40NTAxIDYuMDA1MDUgMTMuODAwOUMzLjc3NzggMTQuMjY4MyAzLjMxMzk5IDEyLjg2NiAzLjMxMzk5IDEyLjg2NkMyLjk1NjA2IDExLjk1NzIgMi40MjU3MiAxMS43MjM2IDIuNDI1NzIgMTEuNzIzNkMxLjY5Njc0IDExLjI0MzIgMi40Nzg4MiAxMS4yNDMyIDIuNDc4ODIgMTEuMjQzMkMzLjI4NzQ0IDExLjI5NTEgMy43MTE3NSAxMi4wNDgyIDMuNzExNzUgMTIuMDQ4MkM0LjQyNzQ1IDEzLjI0MjUgNS41ODA3NCAxMi45MDUxIDYuMDQ0NzEgMTIuNjk3M0M2LjExMDkyIDEyLjE5MDkgNi4zMjMxNSAxMS44NDA0IDYuNTQ4NSAxMS42NDU3QzQuNzcyMTEgMTEuNDYzOSAyLjkwMzEyIDEwLjc4ODggMi45MDMxMiA3Ljc3NjUxQzIuOTAzMTIgNi45MTk2IDMuMjIxMDcgNi4yMTg1MiAzLjcyNDg2IDUuNjczMjdDMy42NDUzOCA1LjQ3ODU2IDMuMzY2OTMgNC42NzM0NCAzLjgwNDUxIDMuNTk1ODRDMy44MDQ1MSAzLjU5NTg0IDQuNDgwNTUgMy4zODgwNyA2LjAwNDg4IDQuNDAwODFDNi42NTc1IDQuMjI5MTUgNy4zMzA1NCA0LjE0MTgzIDguMDA2NjIgNC4xNDEwOUM4LjY4MjY2IDQuMTQxMDkgOS4zNzE4MSA0LjIzMjA3IDEwLjAwODIgNC40MDA4MUMxMS41MzI3IDMuMzg4MDcgMTIuMjA4NyAzLjU5NTg0IDEyLjIwODcgMy41OTU4NEMxMi42NDYzIDQuNjczNDQgMTIuMzY3NyA1LjQ3ODU2IDEyLjI4ODIgNS42NzMyN0MxMi44MDUzIDYuMjE4NTIgMTMuMTEwMSA2LjkxOTYgMTMuMTEwMSA3Ljc3NjUxQzEzLjExMDEgMTAuNzg4OCAxMS4yNDExIDExLjQ1MDggOS40NTE0NiAxMS42NDU3QzkuNzQzMTggMTEuODkyMyA5Ljk5NDkyIDEyLjM1OTcgOS45OTQ5MiAxMy4wOTk4QzkuOTk0OTIgMTQuMTUxNCA5Ljk4MTgxIDE0Ljk5NTQgOS45ODE4MSAxNS4yNTVDOS45ODE4MSAxNS40NjI3IDEwLjEyNzcgMTUuNzA5NSAxMC41MjUzIDE1LjYzMTZDMTMuNzA2NyAxNC41OTI4IDE2IDExLjY1ODYgMTYgOC4xOTIwNkMxNi4wMTMxIDMuODU1NCAxMi40MjA4IDAuMzUwMDA2IDguMDA2NjIgMC4zNTAwMDZaIj48L3BhdGg+PC9zdmc+");
+background-position-x: center;
+background-position-y: center;
+background-size: contain;
+background-repeat: no-repeat;
+width: 1.5rem;
+height: 1.5rem;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 # Define the HTML for the header
 header_html = """
 <style>
-header {
+header-mine {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0px;
-    background-color: #f8f9fa;
+    padding: 10px;
+    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+    backdrop-filter: blur(10px); /* This creates the blur effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
     border-bottom: 1px solid #e0e0e0;
+    z-index: 1000;
+    
 }
 .header-left {
     display: flex;
-    align-items: end;
+    align-items: center;
 }
 .header-right {
     display: flex;
-    align-items: end;
+    align-items: center;
 }
 .header-logo {
     height: 40px;
@@ -100,16 +118,13 @@ header {
     text-decoration: underline;
 }
 </style>
-<header>
+<header-mine>
     <div class="header-left">
-        <div class="header-title">My Streamlit App</div>
     </div>
     <div class="header-right header-links">
-        <a href="https://example.com">Home</a>
-        <a href="https://example.com/about">About</a>
-        <a href="https://example.com/contact">Contact</a>
+        <a id="github" href="https://github.com/m3dkata"></a>
     </div>
-</header>
+</header-mine>
 """
 
 # Inject the HTML into the Streamlit app
@@ -806,15 +821,43 @@ async def main_async():
             #     }
             # </style>
             # """, unsafe_allow_html=True)
-            with prev:
-                if st.button("< ПРЕДИШЕН", key="prev_btn"):
+            # with prev:
+            #     if st.button("< ПРЕДИШЕН", key="prev_btn"):
+            #         if st.session_state.chapter_index > 0:
+            #             st.session_state.chapter_index -= 1
+            # with next:
+            #     if st.button("СЛЕДВАЩ >", key="next_btn"):
+            #         if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+            #             st.session_state.chapter_index += 1
+            # st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown("""
+            <style>
+                div[data-testid="column"] {
+                    width: fit-content !important;
+                    flex: unset;
+                }
+                div[data-testid="column"] * {
+                    width: fit-content !important;
+                }
+                #prev_btn{
+                    position: fixed;
+                    bottom: 1rem;
+                    left: 1rem;
+                }
+            </style>
+            """, unsafe_allow_html=True)
+
+            col = st.columns([0.5, 0.5],gap="small")
+
+            with col[0]:
+                if st.button("🡰", key="prev_btn"):
                     if st.session_state.chapter_index > 0:
                         st.session_state.chapter_index -= 1
-            with next:
-                if st.button("СЛЕДВАЩ >", key="next_btn"):
+
+            with col[1]:
+                if st.button("🡲", key="next_btn"):
                     if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                         st.session_state.chapter_index += 1
-            # st.markdown('</div>', unsafe_allow_html=True)
 
 
     # Display the current chapter based on the chapter index
