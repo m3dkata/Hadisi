@@ -804,7 +804,7 @@ async def main_async():
         if st.session_state["authentication_status"] is None:
             if st.button('ЗАБРАВЕНА ПАРОЛА'):
                 try:
-                    username, email, new_password = authenticator.forgot_password()
+                    username, email, new_password = authenticator.forgot_password(fields={'Form name':'ЗАБРАВЕНА ПАРОЛА', 'Username':'Потр. име', 'Submit':'НАПРЕД'})
                     if username:
                         st.success('Новата парола ще бъде изпратена сигурно')
                         # Here you should implement a secure way to send the new password to the user
