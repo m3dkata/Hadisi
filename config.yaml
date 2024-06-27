@@ -1,0 +1,13 @@
+credentials:
+  usernames:
+    m3dkata:
+      email: m3dkata_tr@abv.bg
+      name: Mehmed Cherkez
+      password: $2b$12$qsjBIF9V99c9Mq2QaFYE5uc0h0ybfapqSCNw0oZqF5xJc.xhHhnPq # This should be a hashed password
+cookie:
+  expiry_days: 30
+  key: $2b$12$qsjBIF9V99c9Mq2QaFYE5uc0h0ybfapqSCNw0oZqF5xJc.xhHhnPq
+  name: m3dkata
+preauthorized:
+  emails:
+  - m3dkata_tr@abv.bg

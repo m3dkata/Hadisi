@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from networkx import center
 import streamlit as st
 import aiohttp
 from bs4 import BeautifulSoup
@@ -13,16 +14,16 @@ from functools import partial
 import aiohttp
 from streamlit.runtime.scriptrunner import RerunException
 from streamlit_extras.stoggle import stoggle
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+import streamlit_authenticator as stauth
+import yaml
+from yaml.loader import SafeLoader
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
 
 if 'content_visible' not in st.session_state:
     st.session_state.content_visible = True  # Content is visible on initial load    
-    
+
 
 st.set_page_config(
     layout="wide",
@@ -37,6 +38,21 @@ st.set_page_config(
 )
 
 
+with open('config.yaml') as file:
+    config = yaml.load(file, Loader=SafeLoader)
+
+authenticator = stauth.Authenticate(
+    config['credentials'],
+    config['cookie']['name'],
+    config['cookie']['key'],
+    config['cookie']['expiry_days'],
+    config['preauthorized']
+)
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Hide Streamlit's default footer
 hide_streamlit_style = """
 <style>
@@ -48,6 +64,13 @@ hide_streamlit_style = """
     padding-right: 2rem;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+@media (max-width: 640px) {
+    .block-container {
+    padding-top: 0.2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    }
+}
 }
 </style>
 """
@@ -139,7 +162,7 @@ if "themes" not in ms:
                               "theme.primaryColor": "#FF4B4B",
                               "theme.secondaryBackgroundColor": "#262730",
                               "theme.textColor": "#FAFAFA",
-                              "button_face": "Тъмна тема 🌜"},
+                              "button_face": "Тъмна тема 🌓"},
 
                     "dark":  {"theme.base": "light",
                               "theme.backgroundColor": "#FFFFFF",
@@ -544,7 +567,10 @@ def display_chapter(cursor, chapter_id):
         # st.divider()
         # col1, col2, col3 = st.columns(3)
         # Hadith text
-        bulgarian_text = chapter_data[8].replace("(ﷺ)", "(С.А.С)").replace("`", "")
+        bulgarian_text = chapter_data[8]
+        bulgarian_text.replace("(ﷺ)", "(С.А.С)")
+        bulgarian_text.replace("(ﷺ )", "(С.А.С)")
+        bulgarian_text.replace("`", "")
         arabic_text = chapter_data[7]
         st.markdown(f"""
         <div class="custom-container">
@@ -660,48 +686,9 @@ def change():
     )
 
 async def main_async():
+    
     create_database()
-
-    # Load books from JSON
-    # books = await scrape_books()
-    # book_options = [f"{book['english_name']} ({book['arabic_name']}) - {book['book_name']}" for book in books]
     
-    # selected_book = st.selectbox("Избери Книга:", book_options)
-    
-    # if selected_book:
-    #     book_name = selected_book.split(' - ')[-1]
-    #     selected_book_data = next(book for book in books if book['book_name'] == book_name)
-        
-    #     # Use get() method with default values to avoid KeyError
-    #     default_start = selected_book_data.get('start_page', 1)
-    #     default_end = selected_book_data.get('end_page', 10)
-        
-    #     st.write(f"Книга: {selected_book}")
-        
-    #     col1, col2 = st.columns(2)
-    #     with col1:
-    #         start_page = st.number_input("Начална Глава:", min_value=1, value=default_start)
-    #     with col2:
-    #         end_page = st.number_input("Крайна Глава:", min_value=start_page, value=default_end)
-        
-    # col1, col2 = st.columns(2)  
-    # with col1:
-    #     if st.button("ДОБАВЯНЕ КЪМ БАЗАТА", key="scrape_button"):
-    #         if start_page > end_page:
-    #             st.error("Началната страница не може да бъде по-голяма от крайната страница.")
-    #         else:
-    #             with st.spinner(f"Скрейпване, превод и актуализиране на база данни за {book_name} (глави {start_page} до {end_page})... Това може да отнеме известно време."):
-    #                 await populate_database(book_name, start_page, end_page)
-    #             st.success("Базата данни е актуализирана успешно с преводи!")
-    # with col2:  
-    #     if st.button("Обновяване на данните за книгите"):
-    #         if os.path.exists('books_data.json'):
-    #             os.remove('books_data.json')
-    #         for file in os.listdir():
-    #             if file.startswith('book_range_') and file.endswith('.json'):
-    #                 os.remove(file)
-    #         st.success("Данните за книгата са изчистени. Моля, опреснете страницата, за да направите повторно изчерпване.")
-
 
     conn = sqlite3.connect('hadiths.db')
     c = conn.cursor()
@@ -712,9 +699,125 @@ async def main_async():
     st.logo(ICON_RED)
     
     if st.session_state.content_visible:
-        # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
-        st.subheader("بسم الله الرحمن الرحيم")
+        col1, col2, col3 = st.columns(3)
+        # Get total chapter count
+        c.execute("SELECT COUNT(*) FROM chapters")
+        total_chapters = c.fetchone()[0]
 
+        with col1:
+            pass
+        with col2:
+            st.image("logo.png")
+        with col3:
+            pass
+        col3_text = st.columns(1)
+        with col3_text[0]:
+            st.subheader(f":red[{total_chapters}] :rainbow[Хадиси с български и арабски текст]")
+    
+        # Render login widget
+        authenticator.login(fields={'Form name':'ВЛЕЗ', 'Username':'Потр. име', 'Password':'Парола', 'Login':'ВХОД'})
+
+        if st.session_state["authentication_status"]:
+            authenticator.logout('ИЗХОД', 'main')
+            st.write(f'Здравейте *{st.session_state["name"]}*')
+            # Load books from JSON
+            books = await scrape_books()
+            book_options = [f"{book['english_name']} ({book['arabic_name']}) - {book['book_name']}" for book in books]
+            
+            selected_book = st.selectbox("Избери Книга:", book_options)
+            
+            if selected_book:
+                book_name = selected_book.split(' - ')[-1]
+                selected_book_data = next(book for book in books if book['book_name'] == book_name)
+                
+                # Use get() method with default values to avoid KeyError
+                default_start = selected_book_data.get('start_page', 1)
+                default_end = selected_book_data.get('end_page', 10)
+                
+                st.write(f"Книга: {selected_book}")
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    start_page = st.number_input("Начална Глава:", min_value=1, value=default_start)
+                with col2:
+                    end_page = st.number_input("Крайна Глава:", min_value=start_page, value=default_end)
+                
+            col1, col2 = st.columns(2)  
+            with col1:
+                if st.button("ДОБАВЯНЕ КЪМ БАЗАТА", key="scrape_button"):
+                    if start_page > end_page:
+                        st.error("Началната страница не може да бъде по-голяма от крайната страница.")
+                    else:
+                        with st.spinner(f"Скрейпване, превод и актуализиране на база данни за {book_name} (глави {start_page} до {end_page})... Това може да отнеме известно време."):
+                            await populate_database(book_name, start_page, end_page)
+                        st.success("Базата данни е актуализирана успешно с преводи!")
+            with col2:  
+                if st.button("Обновяване на данните за книгите"):
+                    if os.path.exists('books_data.json'):
+                        os.remove('books_data.json')
+                    for file in os.listdir():
+                        if file.startswith('book_range_') and file.endswith('.json'):
+                            os.remove(file)
+                    st.success("Данните за книгата са изчистени. Моля, опреснете страницата, за да направите повторно изчерпване.")
+
+            # Add reset password widget
+            if st.button('Нулиране на парола'):
+                try:
+                    if authenticator.reset_password(st.session_state["username"]):
+                        st.success('Паролата е променена успешно')
+                        # Update configuration file
+                        with open('config.yaml', 'w') as file:
+                            yaml.dump(config, file, default_flow_style=False)
+                except Exception as e:
+                    st.error(e)
+
+            # Add update user details widget
+            if st.button('Актуализиране на потребителски данни'):
+                try:
+                    if authenticator.update_user_details(st.session_state["username"]):
+                        st.success('Записите са актуализирани успешно')
+                        # Update configuration file
+                        with open('config.yaml', 'w') as file:
+                            yaml.dump(config, file, default_flow_style=False)
+                except Exception as e:
+                    st.error(e)
+
+        elif st.session_state["authentication_status"] is False:
+            st.error('Потребителското име/паролата е неправилно')
+        elif st.session_state["authentication_status"] is None:
+            st.warning('Моля, въведете вашето потребителско име и парола, за да влезете')
+
+        # Add register new user widget (only if not logged in)
+        # if st.session_state["authentication_status"] is None:
+        #     if st.button('Register New User'):
+        #         try:
+        #             email, username, name = authenticator.register_user(pre_authorization=False)
+        #             if email:
+        #                 st.success('User registered successfully')
+        #                 # Update configuration file
+        #                 with open('config.yaml', 'w') as file:
+        #                     yaml.dump(config, file, default_flow_style=False)
+        #         except Exception as e:
+        #             st.error(e)
+
+        # Add forgot password widget (only if not logged in)
+        if st.session_state["authentication_status"] is None:
+            if st.button('ЗАБРАВЕНА ПАРОЛА'):
+                try:
+                    username, email, new_password = authenticator.forgot_password()
+                    if username:
+                        st.success('Новата парола ще бъде изпратена сигурно')
+                        # Here you should implement a secure way to send the new password to the user
+                        st.write(f"Новата парола за {username}: {new_password}")
+                        # Update configuration file
+                        with open('config.yaml', 'w') as file:
+                            yaml.dump(config, file, default_flow_style=False)
+                    elif username == False:
+                        st.error('Потребителското име не е намерено')
+                except Exception as e:
+                    st.error(e)
+    
+    
     # Search functionality
     search_term = st.sidebar.text_input(
         "Търсене", 
@@ -763,6 +866,7 @@ async def main_async():
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
                                 st.session_state.content_visible = False
+                                st.rerun()
                                 # display_chapter(c, chapter[0])
 
                 # Add a divider after each book with matching results, except for the last one
@@ -783,6 +887,7 @@ async def main_async():
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
                                     st.session_state.content_visible = False
+                                    st.rerun()
                                     # display_chapter(c, chapter[0])
 
                 
@@ -801,7 +906,7 @@ async def main_async():
         st.session_state.chapter_selected = False
 
     # Add custom CSS to position buttons fixed at bottom left and bottom right
-    prev, next = st.columns([1, 1], gap="small")
+    # prev, next = st.columns([1, 1], gap="small")
     
 
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
@@ -838,20 +943,34 @@ async def main_async():
                 div[data-testid="column"] * {
                     width: fit-content !important;
                 }
+                /* Styles for mobile devices */
+                @media (max-width: 640px) {
+                    div[data-testid="column"] {
+                        width: 100% !important;
+                    }
+                    div[data-testid="column"] * {
+                        width: 100% !important;
+                    }
+                    .stButton > button {
+                        width: 100%;
+                        padding: 0px 0;
+                        margin: 0px 0;
+                    }
+                }
             </style>
             """, unsafe_allow_html=True)
 
-            col = st.columns([0.5, 0.5],gap="small")
+            col = st.columns([2, 2],gap="small", vertical_alignment="bottom")
 
             with col[0]:
-                if st.button("&lt;", key="prev_btn"):
+                if st.button("&lt; ПРЕДИШЕН", key="prev_btn"):
                     if st.session_state.chapter_index > 0:
                         st.session_state.chapter_index -= 1
-
             with col[1]:
-                if st.button("&gt;", key="next_btn"):
+                if st.button("СЛЕДВАЩ &gt;", key="next_btn"):
                     if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                        st.session_state.chapter_index += 1
+                        st.session_state.chapter_index += 1        
+
 
 
     # Display the current chapter based on the chapter index
