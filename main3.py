@@ -86,10 +86,9 @@ header-mine {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background-color: rgba(255, 255, 255, 0.5); /* Semi-transparent background */
+    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
     backdrop-filter: blur(10px); /* This creates the blur effect */
     -webkit-backdrop-filter: blur(10px); /* For Safari support */
-    border-bottom: 1px solid #e0e0e0;
     z-index: 1000;
     
 }
@@ -839,23 +838,18 @@ async def main_async():
                 div[data-testid="column"] * {
                     width: fit-content !important;
                 }
-                #prev_btn{
-                    position: fixed;
-                    bottom: 1rem;
-                    left: 1rem;
-                }
             </style>
             """, unsafe_allow_html=True)
 
             col = st.columns([0.5, 0.5],gap="small")
 
             with col[0]:
-                if st.button("🡰", key="prev_btn"):
+                if st.button("&lt;", key="prev_btn"):
                     if st.session_state.chapter_index > 0:
                         st.session_state.chapter_index -= 1
 
             with col[1]:
-                if st.button("🡲", key="next_btn"):
+                if st.button("&gt;", key="next_btn"):
                     if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
                         st.session_state.chapter_index += 1
 
