@@ -20,6 +20,10 @@ logger = logging.getLogger(__name__)
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
 
+if 'content_visible' not in st.session_state:
+    st.session_state.content_visible = True  # Content is visible on initial load    
+    
+
 st.set_page_config(
     layout="wide",
     page_title="Хадисите на Мухаммед(С.А.С)",
@@ -39,11 +43,11 @@ hide_streamlit_style = """
 #MainMenu {visibility: hidden;}
 .stActionButton {visibility: hidden;}
 .block-container {
-    padding-top: 1rem;
+    padding-top: 1.5rem;
     padding-left: 2rem;
     padding-right: 2rem;}
 footer {visibility: hidden;}
-header {visibility: hidden;}
+header {visibility: visible;}
 }
 </style>
 """
@@ -60,6 +64,56 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# Define the HTML for the header
+header_html = """
+<style>
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e0e0e0;
+}
+.header-left {
+    display: flex;
+    align-items: end;
+}
+.header-right {
+    display: flex;
+    align-items: end;
+}
+.header-logo {
+    height: 40px;
+    margin-right: 10px;
+}
+.header-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+.header-links a {
+    margin-left: 15px;
+    text-decoration: none;
+    color: #007bff;
+}
+.header-links a:hover {
+    text-decoration: underline;
+}
+</style>
+<header>
+    <div class="header-left">
+        <div class="header-title">My Streamlit App</div>
+    </div>
+    <div class="header-right header-links">
+        <a href="https://example.com">Home</a>
+        <a href="https://example.com/about">About</a>
+        <a href="https://example.com/contact">Contact</a>
+    </div>
+</header>
+"""
+
+# Inject the HTML into the Streamlit app
+st.markdown(header_html, unsafe_allow_html=True)
 
 ms = st.session_state
 if "themes" not in ms: 
@@ -641,10 +695,11 @@ async def main_async():
     # Sidebar with tree-like structure
     HORIZONTAL_RED = "main_logo.png"
     ICON_RED = "logo.png"
-    st.logo(HORIZONTAL_RED, icon_image=ICON_RED)
+    st.logo(ICON_RED)
     
-    # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
-    st.subheader("بسم الله الرحمن الرحيم")
+    if st.session_state.content_visible:
+        # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
+        st.subheader("بسم الله الرحمن الرحيم")
 
     # Search functionality
     search_term = st.sidebar.text_input(
@@ -693,6 +748,7 @@ async def main_async():
                                 st.session_state.chapter_index = chapters.index(chapter)
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
+                                st.session_state.content_visible = False
                                 # display_chapter(c, chapter[0])
 
                 # Add a divider after each book with matching results, except for the last one
@@ -712,6 +768,7 @@ async def main_async():
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
+                                    st.session_state.content_visible = False
                                     # display_chapter(c, chapter[0])
 
                 
