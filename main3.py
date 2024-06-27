@@ -11,15 +11,20 @@ import logging
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 from functools import partial
 import aiohttp
+from streamlit.runtime.scriptrunner import RerunException
+from streamlit_extras.stoggle import stoggle
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+if 'sidebar_state' not in st.session_state:
+    st.session_state.sidebar_state = 'expanded'
 
 st.set_page_config(
     layout="wide",
     page_title="Хадисите на Мухаммед(С.А.С)",
     page_icon='logo.png',
-    initial_sidebar_state='expanded',
+    initial_sidebar_state=st.session_state.sidebar_state,
     menu_items={
         'Get Help': None,
         'Report a bug': None,
@@ -27,17 +32,19 @@ st.set_page_config(
     }
 )
 
+
 # Hide Streamlit's default footer
 hide_streamlit_style = """
 <style>
-#MainMenu {visibility: hidden;}
+#MainMenu {visibility: visible;}
 .stActionButton {visibility: hidden;}
 .block-container {
     padding-top: 1rem;
-    padding-left: 1rem;
-    padding-right: 1rem;}
+    padding-left: 2rem;
+    padding-right: 2rem;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+}
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -52,6 +59,46 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+
+# ms = st.session_state
+# if "themes" not in ms: 
+#   ms.themes = {"current_theme": "light",
+#                     "refreshed": True,
+                    
+#                     "light": {"theme.base": "dark",
+#                               "theme.backgroundColor": "#002b36",
+#                               "theme.primaryColor": "#c98bdb",
+#                               "theme.secondaryBackgroundColor": "#586e75",
+#                               "theme.textColor": "#fafafa",
+#                               "button_face": "Тъмна тема 🌜"},
+
+#                     "dark":  {"theme.base": "light",
+#                               "theme.backgroundColor": "white",
+#                               "theme.primaryColor": "#5591f5",
+#                               "theme.secondaryBackgroundColor": "#82E1D7",
+#                               "theme.textColor": "#0a1464",
+#                               "button_face": "Светла тема 🌞"},
+#                     }
+  
+
+# def ChangeTheme():
+#   previous_theme = ms.themes["current_theme"]
+#   tdict = ms.themes["light"] if ms.themes["current_theme"] == "light" else ms.themes["dark"]
+#   for vkey, vval in tdict.items(): 
+#     if vkey.startswith("theme"): st._config.set_option(vkey, vval)
+
+#   ms.themes["refreshed"] = False
+#   if previous_theme == "dark": ms.themes["current_theme"] = "light"
+#   elif previous_theme == "light": ms.themes["current_theme"] = "dark"
+
+
+# btn_face = ms.themes["light"]["button_face"] if ms.themes["current_theme"] == "light" else ms.themes["dark"]["button_face"]
+# st.sidebar.button(btn_face, on_click=ChangeTheme)
+
+# if ms.themes["refreshed"] == False:
+#   ms.themes["refreshed"] = True
+#   st.rerun()
 
 # Initialize the translator
 translator = Translator()
@@ -403,14 +450,14 @@ def display_chapter(cursor, chapter_id):
         st.markdown(f"""
         <div class="custom-container">
             <div class="custom-column">
-                <h3 class="custom-text">{chapter_data[9]}. {chapter_data[12].upper()}</h3>
+                <h3 class="custom-text">{chapter_data[9].replace("'", "")}. {chapter_data[12].upper()}</h3>
             </div>
             <div class="custom-column">
                 <h3 class="custom-text">{chapter_data[9]}. {chapter_data[11]}</h3>
             </div>
         </div>
         """, unsafe_allow_html=True)
-        st.markdown("<hr>", unsafe_allow_html=True)
+        # st.markdown("<hr>", unsafe_allow_html=True)
 
         # col1, col2, col3 = st.columns(3)
         # Chapter titles
@@ -538,6 +585,11 @@ async def get_book_range(book_name):
     
     logger.warning(f"No book titles found for {book_name}, using default range")
     return 1, 10
+    
+def change():
+    st.session_state.sidebar_state = (
+        "expanded" if st.session_state.sidebar_state == "collapsed" else "collapsed"
+    )
 
 async def main_async():
     create_database()
@@ -585,13 +637,15 @@ async def main_async():
 
     conn = sqlite3.connect('hadiths.db')
     c = conn.cursor()
-
+    
     # Sidebar with tree-like structure
     HORIZONTAL_RED = "main_logo.png"
     ICON_RED = "logo.png"
     st.logo(HORIZONTAL_RED, icon_image=ICON_RED)
+    
     # st.sidebar.header(f":red[Хадисите на Мохаммед(С.А.С)(صلى الله عليه و سلم)]")
-    st.subheader("Хадисите на пророка Мухаммед(С.А.С)(صلى الله عليه و سلم)")
+    st.subheader("بسم الله الرحمن الرحيم")
+
     # Search functionality
     search_term = st.sidebar.text_input(
         "Търсене", 
@@ -635,7 +689,7 @@ async def main_async():
                         chapters = c.fetchall()
                         for chapter in chapters:
                             chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
-                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
+                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                 st.session_state.chapter_index = chapters.index(chapter)
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
@@ -654,7 +708,7 @@ async def main_async():
                             c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page[0],))
                             chapters = c.fetchall()
                             for chapter in chapters:
-                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед"):
+                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
@@ -676,37 +730,34 @@ async def main_async():
         st.session_state.chapter_selected = False
 
     # Add custom CSS to position buttons fixed at bottom left and bottom right
-    st.markdown("""
-    <style>
-        .fixed-buttons {
-            position: fixed;
-            bottom: 10px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            padding: 0 20px;
-            box-sizing: border-box;
-            z-index: 1000; /* Ensure the buttons are on top */
-        }
-        .fixed-buttons .stButton {
-            width: auto;
-        }
-    </style>
-    """, unsafe_allow_html=True)
+    prev, next = st.columns([1, 1], gap="small")
+    
 
     # Add "PREV" and "NEXT" buttons only if a chapter has been selected
     if st.session_state.chapter_selected:
-        st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
-        col1, col2 = st.columns([2, 2])
-        with col1:
-            if st.button("< ПРЕДИШЕН"):
-                if st.session_state.chapter_index > 0:
-                    st.session_state.chapter_index -= 1
-        with col2:
-            if st.button("СЛЕДВАЩ >"):
-                if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                    st.session_state.chapter_index += 1
-        st.markdown('</div>', unsafe_allow_html=True)
+        # st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
+        # with bottom():
+            # col1, col2 = st.columns([1, 1])
+            # st.markdown("""
+            # <style>
+            #     div[data-testid="stHorizontalBlock"] {
+            #         width: fit-content !important;
+            #         flex: unset;
+            #     }
+            #     div[data-testid="stHorizontalBlock"] * {
+            #         width: fit-content !important;
+            #     }
+            # </style>
+            # """, unsafe_allow_html=True)
+            with prev:
+                if st.button("< ПРЕДИШЕН", key="prev_btn"):
+                    if st.session_state.chapter_index > 0:
+                        st.session_state.chapter_index -= 1
+            with next:
+                if st.button("СЛЕДВАЩ >", key="next_btn"):
+                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                        st.session_state.chapter_index += 1
+            # st.markdown('</div>', unsafe_allow_html=True)
 
 
     # Display the current chapter based on the chapter index
