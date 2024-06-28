@@ -21,6 +21,7 @@ from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
+
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
 
@@ -595,6 +596,20 @@ def create_database():
     conn.commit()
     conn.close()
 
+def update_chapter_text(cursor, chapter_id, new_text):
+    try:
+        cursor.execute("""
+            UPDATE chapters
+            SET bulgarian_hadith_full = ?
+            WHERE id = ?
+        """, (new_text, chapter_id))
+        cursor.connection.commit()
+        return True
+    except Exception as e:
+        print(f"Error updating chapter text: {e}")
+        return False
+
+
 def display_chapter(cursor, chapter_id):
     cursor.execute("""
         SELECT c.echapno, c.englishchapter, c.arabicchapter, c.bulgarianchapter,
@@ -667,16 +682,54 @@ def display_chapter(cursor, chapter_id):
         bulgarian_text = bulgarian_text.replace("(ﷺ)", "(С.А.С)")
         bulgarian_text = bulgarian_text.replace("`", "")
         arabic_text = chapter_data[7]
-        st.markdown(f"""
-        <div class="custom-container">
-            <div class="custom-column">
-                <p class="custom-text">{bulgarian_text}</p>
+        # Add edit button and editing functionality
+        if st.session_state["authentication_status"]:
+            edit_button = st.button("Редактирай", key=f"edit_button_{chapter_id}")
+            if edit_button:
+                st.session_state[f"editing_{chapter_id}"] = True
+
+            if st.session_state.get(f"editing_{chapter_id}", False):
+                edited_text = st.text_area("Редактирай българския текст", value=bulgarian_text, key=f"edit_area_{chapter_id}")
+                save_button = st.button("Запази", key=f"save_button_{chapter_id}")
+                if save_button:
+                    success = update_chapter_text(cursor, chapter_id, edited_text)
+                    if success:
+                        st.session_state[f"message_{chapter_id}"] = "Текстът е успешно актуализиран!"
+                    else:
+                        st.session_state[f"message_{chapter_id}"] = "Грешка при актуализиране на текста."
+                    st.session_state[f"editing_{chapter_id}"] = False
+                    st.experimental_rerun()
+
+            # Display any pending messages
+            if f"message_{chapter_id}" in st.session_state:
+                if "успешно" in st.session_state[f"message_{chapter_id}"]:
+                    st.success(st.session_state[f"message_{chapter_id}"])
+                else:
+                    st.error(st.session_state[f"message_{chapter_id}"])
+                del st.session_state[f"message_{chapter_id}"]  # Clear the message after displaying
+
+            if not st.session_state.get(f"editing_{chapter_id}", False):
+                st.markdown(f"""
+                <div class="custom-container">
+                    <div class="custom-column">
+                        <p class="custom-text">{bulgarian_text}</p>
+                    </div>
+                    <div class="custom-column">
+                        <p class="custom-text">{arabic_text}</p>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+        else:
+            st.markdown(f"""
+            <div class="custom-container">
+                <div class="custom-column">
+                    <p class="custom-text">{bulgarian_text}</p>
+                </div>
+                <div class="custom-column">
+                    <p class="custom-text">{arabic_text}</p>
+                </div>
             </div>
-            <div class="custom-column">
-                <p class="custom-text">{arabic_text}</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
 
         # with col3:
         #     english_text = chapter_data[6]
@@ -794,7 +847,7 @@ async def main_async():
     st.logo(ICON_RED)
     
     if st.session_state.content_visible:
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3 = st.columns([2,1,2])
         # Get total chapter count
         # c.execute("SELECT COUNT(*) FROM chapters")
         # total_chapters = c.fetchone()[0]
@@ -805,10 +858,14 @@ async def main_async():
             st.image("logo.png", width=200, use_column_width="always")
         with col3:
             pass
-        col3_text = st.columns(1)
-        with col3_text[0]:
+        empty1, col3_text, empty2 = st.columns([1,2,1])
+        with empty1:
+            st.empty()
+        with col3_text:
             st.subheader(f":rainbow[Хадиси с български и арабски текст от] :red[https://sunnah.com] ")
             # st.subheader(f":red[{total_chapters}] :rainbow[Хадиси с български и арабски текст]")
+        with empty2:
+            st.empty()    
     
         # Render login widget
         authenticator.login(fields={'Form name':'ВЛЕЗ', 'Username':'Потр. име', 'Password':'Парола', 'Login':'ВХОД'})
