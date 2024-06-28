@@ -865,7 +865,7 @@ async def main_async():
         "2. АЛ-БАКАРА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
         "3. АЛ ИМРАН": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3")
     }
-    with st.sidebar.expander("Коран-и керим"):
+    with st.sidebar.expander("Слушай Коран-и керим"):
         selected_sura = st.selectbox(
         "Изберете сура",
         ("1. СУРА АЛ-ФАТИХА", "2. АЛ-БАКАРА", "3. АЛ ИМРАН")
@@ -874,6 +874,7 @@ async def main_async():
     # Check if a sura is selected
     if selected_sura:
         st.session_state.content_visible = False
+        change()
 
         # Display the corresponding audio files
         audio_file_bg, audio_file_ar = audio_files.get(selected_sura, (None, None))
