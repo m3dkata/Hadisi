@@ -327,6 +327,7 @@ async def scrape_book_page(html):
 
         current_echapno = None
         sub_chapter_counter = 0
+        previous_content = None
 
         for element in all_elements:
             try:
@@ -372,18 +373,27 @@ async def scrape_book_page(html):
 
                 echapno = f"{current_echapno}.{sub_chapter_counter}" if current_echapno else str(sub_chapter_counter)
 
-                chapters.append({
-                    'echapno': echapno,
-                    'englishchapter': englishchapter,
-                    'arabicchapter': arabicchapter,
-                    'bulgarianchapter': bulgarianchapter,
-                    'arabic_achapintro': arabic_achapintro,
-                    'hadith_narrated': hadith_narrated.text.strip() if hadith_narrated else "",
-                    'english_hadith_full': english_hadith_full.text.strip() if english_hadith_full else "",
-                    'arabic_hadith_full': arabic_hadith_full.text.strip() if arabic_hadith_full else "",
-                    'bulgarian_hadith_full': bulgarian_hadith_full,
-                    'hadith_reference': hadith_reference_html
-                })
+                # Create a content string to compare
+                content = f"{englishchapter}{arabicchapter}{bulgarianchapter}{arabic_achapintro}{hadith_narrated.text.strip() if hadith_narrated else ''}{english_hadith_full.text.strip() if english_hadith_full else ''}{arabic_hadith_full.text.strip() if arabic_hadith_full else ''}"
+
+                # Only add the chapter if the content is different from the previous one
+                if content != previous_content:
+                    chapters.append({
+                        'echapno': echapno,
+                        'englishchapter': englishchapter,
+                        'arabicchapter': arabicchapter,
+                        'bulgarianchapter': bulgarianchapter,
+                        'arabic_achapintro': arabic_achapintro,
+                        'hadith_narrated': hadith_narrated.text.strip() if hadith_narrated else "",
+                        'english_hadith_full': english_hadith_full.text.strip() if english_hadith_full else "",
+                        'arabic_hadith_full': arabic_hadith_full.text.strip() if arabic_hadith_full else "",
+                        'bulgarian_hadith_full': bulgarian_hadith_full,
+                        'hadith_reference': hadith_reference_html
+                    })
+                    previous_content = content
+                else:
+                    logger.info(f"Skipping duplicate content for echapno {echapno}")
+
             except AttributeError as e:
                 logger.error(f"Error processing chapter on page: {str(e)}")
                 continue
@@ -453,19 +463,19 @@ async def scrape_and_translate_page(session, book_id, page_number, book_name):
 async def populate_database(book_name, start_page, end_page):
     conn = sqlite3.connect('hadiths.db', check_same_thread=False)
     c = conn.cursor()
-    
+   
     # Check if the book already exists
     c.execute("SELECT id FROM books WHERE book_name = ?", (book_name,))
     existing_book = c.fetchone()
-    
+   
     if existing_book:
         book_id = existing_book[0]
         st.info(f"Книга '{book_name}' вече съществува в базата данни. Използване на съществуващ идентификатор на книга: {book_id}")
     else:
-        # Scrape main page
+        # Scrape main page only if the book doesn't exist
         main_url = f"https://sunnah.com/{book_name}"
         main_data = await scrape_main_page(main_url)
-        
+       
         if not main_data:
             st.error(f"Failed to scrape main page for book {book_name}")
             conn.close()
@@ -484,30 +494,36 @@ async def populate_database(book_name, start_page, end_page):
     async with aiohttp.ClientSession() as session:
         total_pages = end_page - start_page + 1
         for i, page_number in enumerate(range(start_page, end_page + 1), 1):
-            status_text.caption(f"Обработване на Глава {page_number} от {end_page}")
-            
+            status_text.caption(f":green[Обработване на Глава {page_number} от {end_page}]")
+           
             # Check if the page already exists
             c.execute("SELECT id FROM pages WHERE book_id = ? AND book_page_number = ?", (book_id, str(page_number)))
             existing_page = c.fetchone()
-            
+           
             if existing_page:
-                st.info(f"Глава {page_number} вече съществува в базата данни. Пропускане...")
+                page_id = existing_page[0]
+                st.caption(f":blue[Страница {page_number} вече съществува. Пропускане на скрейпването.]")
             else:
+                # Scrape the page only if it doesn't exist
                 result = await scrape_and_translate_page(session, book_id, page_number, book_name)
-                
+               
                 if result:
                     _, _, page_data = result
-                    
-                    # Insert page
+                   
                     c.execute("INSERT INTO pages (book_id, book_page_number, book_page_english_name, book_page_arabic_name, book_page_bulgarian_name) VALUES (?, ?, ?, ?, ?)",
                               (book_id, page_data['book_page_number'], page_data['book_page_english_name'], page_data['book_page_arabic_name'], page_data['book_page_bulgarian_name']))
                     page_id = c.lastrowid
-                    
-                    # Insert chapters
+                   
                     for chapter in page_data['chapters']:
-                        c.execute("SELECT id FROM chapters WHERE page_id = ? AND echapno = ?", (page_id, chapter['echapno']))
+                        # Check if the chapter already exists
+                        c.execute("""SELECT id FROM chapters
+                                     WHERE page_id = ? AND
+                                           (english_hadith_full = ? OR
+                                            arabic_hadith_full = ? OR
+                                            bulgarian_hadith_full = ?)""",
+                                  (page_id, chapter['english_hadith_full'], chapter['arabic_hadith_full'], chapter['bulgarian_hadith_full']))
                         existing_chapter = c.fetchone()
-                        
+                       
                         if not existing_chapter:
                             c.execute("""INSERT INTO chapters
                                          (page_id, echapno, englishchapter, arabicchapter, bulgarianchapter, arabic_achapintro,
@@ -517,12 +533,14 @@ async def populate_database(book_name, start_page, end_page):
                                        chapter['bulgarianchapter'], chapter['arabic_achapintro'], chapter['hadith_narrated'],
                                        chapter['english_hadith_full'], chapter['arabic_hadith_full'], chapter['bulgarian_hadith_full'],
                                        chapter['hadith_reference']))
-                    
+                        else:
+                            st.caption(f":blue[Глава {chapter['echapno']} вече съществува. Пропускане.]")
+                   
                     conn.commit()
-                    st.caption(f"Успешно добавена: Глава {page_number} - {page_data['book_page_english_name']} ({len(page_data['chapters'])} хадиса)")
+                    st.caption(f"Обработена: Глава {page_number} - {page_data['book_page_english_name']} ({len(page_data['chapters'])} хадиса)")
                 else:
-                    st.error(f"Неуспешно скрейпване на страница {page_number}")
-            
+                    st.caption(f":red[Неуспешно скрейпване на страница {page_number}]")
+           
             # Update progress
             progress = i / total_pages
             progress_bar.progress(progress)
@@ -531,6 +549,7 @@ async def populate_database(book_name, start_page, end_page):
     status_text.text("Всички страници са обработени.")
     progress_bar.progress(1.0)
     st.success("Базата данни е актуализирана успешно с преводите!")
+
 
 def create_database():
     conn = sqlite3.connect('hadiths.db')
@@ -777,8 +796,8 @@ async def main_async():
     if st.session_state.content_visible:
         col1, col2, col3 = st.columns(3)
         # Get total chapter count
-        c.execute("SELECT COUNT(*) FROM chapters")
-        total_chapters = c.fetchone()[0]
+        # c.execute("SELECT COUNT(*) FROM chapters")
+        # total_chapters = c.fetchone()[0]
 
         with col1:
             pass
@@ -788,7 +807,8 @@ async def main_async():
             pass
         col3_text = st.columns(1)
         with col3_text[0]:
-            st.subheader(f":red[{total_chapters}] :rainbow[Хадиси с български и арабски текст]")
+            st.subheader(f":rainbow[Хадиси с български и арабски текст от] :red[https://sunnah.com] ")
+            # st.subheader(f":red[{total_chapters}] :rainbow[Хадиси с български и арабски текст]")
     
         # Render login widget
         authenticator.login(fields={'Form name':'ВЛЕЗ', 'Username':'Потр. име', 'Password':'Парола', 'Login':'ВХОД'})
@@ -981,7 +1001,7 @@ async def main_async():
                             c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page[0],))
                             chapters = c.fetchall()
                             for chapter in chapters:
-                                if st.sidebar.button(f"{chapter[1]}: {chapter[2].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
+                                if st.sidebar.button(f"{chapter[1]}: {chapter[2][:30].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
