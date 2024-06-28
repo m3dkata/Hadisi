@@ -109,7 +109,7 @@ header-mine {
     justify-content: space-between;
     align-items: center;
     padding: 10px;
-    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent background */
+    background-color: {blur}; /* Semi-transparent background */
     backdrop-filter: blur(10px); /* This creates the blur effect */
     -webkit-backdrop-filter: blur(10px); /* For Safari support */
     z-index: 1000;
@@ -162,14 +162,16 @@ if "themes" not in ms:
                               "theme.primaryColor": "#FF4B4B",
                               "theme.secondaryBackgroundColor": "#262730",
                               "theme.textColor": "#FAFAFA",
-                              "button_face": "Тъмна тема 🌓"},
+                              "button_face": "Тъмна тема 🌓",
+                              "blur": "rgba(0, 0, 0, 0.5)"},
 
                     "dark":  {"theme.base": "light",
                               "theme.backgroundColor": "#FFFFFF",
                               "theme.primaryColor": "#FF4B4B",
                               "theme.secondaryBackgroundColor": "#F0F2F6",
                               "theme.textColor": "#31333F",
-                              "button_face": "Светла тема 🌞"},
+                              "button_face": "Светла тема 🌞",
+                              "blur":"rgba(255, 255, 255, 0.5)"},
                     }
   
 
@@ -189,7 +191,7 @@ st.sidebar.button(btn_face, on_click=ChangeTheme)
 
 if ms.themes["refreshed"] == False:
   ms.themes["refreshed"] = True
-  st.rerun()
+  st.experimental_rerun()
 
 # Initialize the translator
 translator = Translator()
@@ -568,9 +570,8 @@ def display_chapter(cursor, chapter_id):
         # col1, col2, col3 = st.columns(3)
         # Hadith text
         bulgarian_text = chapter_data[8]
-        bulgarian_text.replace("(ﷺ)", "(С.А.С)")
-        bulgarian_text.replace("(ﷺ )", "(С.А.С)")
-        bulgarian_text.replace("`", "")
+        bulgarian_text = bulgarian_text.replace("(ﷺ)", "(С.А.С)")
+        bulgarian_text = bulgarian_text.replace("`", "")
         arabic_text = chapter_data[7]
         st.markdown(f"""
         <div class="custom-container">
@@ -866,7 +867,7 @@ async def main_async():
                                 st.session_state.chapters = chapters
                                 st.session_state.chapter_selected = True  # Set the flag to True
                                 st.session_state.content_visible = False
-                                st.rerun()
+                                st.experimental_rerun()
                                 # display_chapter(c, chapter[0])
 
                 # Add a divider after each book with matching results, except for the last one
@@ -887,7 +888,7 @@ async def main_async():
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True  # Set the flag to True
                                     st.session_state.content_visible = False
-                                    st.rerun()
+                                    st.experimental_rerun()
                                     # display_chapter(c, chapter[0])
 
                 
