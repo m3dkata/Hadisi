@@ -6,3 +6,4 @@ streamlit==1.36.0
 streamlit-extras==0.4.3
 streamlit-authenticator
 networkx
+sqlalchemy
