@@ -20,7 +20,6 @@ import yaml
 from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from streamlit.components.v1 import html
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
@@ -41,18 +40,6 @@ st.set_page_config(
     }
 )
 
-def add_resize_observer_polyfill():
-    polyfill_js = """
-    <script src="https://unpkg.com/resize-observer-polyfill@1.5.1/dist/ResizeObserver.global.js"></script>
-    <script>
-    if (!window.ResizeObserver) {
-        window.ResizeObserver = ResizeObserverPolyfill;
-    }
-    </script>
-    """
-    html(polyfill_js, height=0)
-
-add_resize_observer_polyfill()
 
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
@@ -794,7 +781,7 @@ def change():
     )
 
 async def main_async():
-    add_resize_observer_polyfill()
+    
     create_database()
     
 
