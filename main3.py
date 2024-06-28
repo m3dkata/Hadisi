@@ -874,7 +874,11 @@ async def main_async():
     
         # Render login widget
         authenticator.login(fields={'Form name':'ВЛЕЗ', 'Username':'Потр. име', 'Password':'Парола', 'Login':'ВХОД'})
-
+        
+        if st.session_state["authentication_status"] and st.session_state["username"] == "moderator":
+            authenticator.logout('ИЗХОД', 'main')
+            st.write(f'Здравейте *{st.session_state["name"]}*')
+            
         if st.session_state["authentication_status"] and st.session_state["username"] == "m3dkata":
             authenticator.logout('ИЗХОД', 'main')
             st.write(f'Здравейте *{st.session_state["name"]}*')
