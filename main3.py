@@ -1,6 +1,8 @@
+import hashlib
 import json
 import os
 import re
+import secrets
 from networkx import center
 import streamlit as st
 import aiohttp
@@ -20,7 +22,7 @@ import yaml
 from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-
+import bcrypt
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
@@ -41,7 +43,6 @@ st.set_page_config(
     }
 )
 
-
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
 
@@ -53,6 +54,10 @@ authenticator = stauth.Authenticate(
     config['preauthorized']
 )
 
+# Generate hashed password
+# password = "Breznitsa7229"
+# hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+# print(hashed_password)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -683,8 +688,8 @@ def display_chapter(cursor, chapter_id):
         bulgarian_text = bulgarian_text.replace("`", "")
         arabic_text = chapter_data[7]
         # Add edit button and editing functionality
-        if st.session_state["authentication_status"]:
-            edit_button = st.button("Редактирай", key=f"edit_button_{chapter_id}")
+        if st.session_state["authentication_status"] and st.session_state["username"] == "moderator":
+            edit_button = st.button(":lower_left_ballpoint_pen:", key=f"edit_button_{chapter_id}")
             if edit_button:
                 st.session_state[f"editing_{chapter_id}"] = True
 
@@ -719,17 +724,17 @@ def display_chapter(cursor, chapter_id):
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-        else:
-            st.markdown(f"""
-            <div class="custom-container">
-                <div class="custom-column">
-                    <p class="custom-text">{bulgarian_text}</p>
+            else:
+                st.markdown(f"""
+                <div class="custom-container">
+                    <div class="custom-column">
+                        <p class="custom-text">{bulgarian_text}</p>
+                    </div>
+                    <div class="custom-column">
+                        <p class="custom-text">{arabic_text}</p>
+                    </div>
                 </div>
-                <div class="custom-column">
-                    <p class="custom-text">{arabic_text}</p>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
 
         # with col3:
         #     english_text = chapter_data[6]
@@ -834,7 +839,7 @@ def change():
     )
 
 async def main_async():
-    
+
     create_database()
     
 
@@ -870,7 +875,7 @@ async def main_async():
         # Render login widget
         authenticator.login(fields={'Form name':'ВЛЕЗ', 'Username':'Потр. име', 'Password':'Парола', 'Login':'ВХОД'})
 
-        if st.session_state["authentication_status"]:
+        if st.session_state["authentication_status"] and st.session_state["username"] == "m3dkata":
             authenticator.logout('ИЗХОД', 'main')
             st.write(f'Здравейте *{st.session_state["name"]}*')
             # Load books from JSON

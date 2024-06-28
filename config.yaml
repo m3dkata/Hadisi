@@ -2,8 +2,16 @@ credentials:
   usernames:
     m3dkata:
       email: m3dkata_tr@abv.bg
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
       name: Mehmed Cherkez
       password: $2b$12$qsjBIF9V99c9Mq2QaFYE5uc0h0ybfapqSCNw0oZqF5xJc.xhHhnPq # This should be a hashed password
+    moderator:
+      email: moderator@example.com
+      failed_login_attempts: 0 # Will be managed automatically
+      logged_in: False # Will be managed automatically
+      name: Модератор
+      password: $2b$12$XfvIpUmOlNV1Yr3RVNYArOuY38uFt/zW9eah7Um2mY1FDKqyEO7Iu
 cookie:
   expiry_days: 30
   key: $2b$12$qsjBIF9V99c9Mq2QaFYE5uc0h0ybfapqSCNw0oZqF5xJc.xhHhnPq
