@@ -292,7 +292,7 @@ async def scrape_book_page(html):
     try:
         soup = BeautifulSoup(html, 'html.parser')
         logger.debug("BeautifulSoup object created")
-        
+
         # Check if the page contains any content
         main_content = soup.find('div', id='main')
         if not main_content:
@@ -301,7 +301,7 @@ async def scrape_book_page(html):
 
         book_info = soup.find('div', class_='book_info')
         logger.debug(f"Book info found: {book_info is not None}")
-        
+
         if not book_info:
             logger.warning("Book info not found on page")
             return None
@@ -317,26 +317,42 @@ async def scrape_book_page(html):
             return None
 
         book_page_bulgarian_name = await translate_text(book_page_english_name.text.strip(), 'en', 'bg')
-        
+
         chapters = []
-        all_chapters = soup.find_all('div', class_='chapter')
-        
-        if not all_chapters:
-            logger.warning("No chapters found on page")
+        all_elements = soup.find_all(['div', 'actualHadithContainer'])
+
+        if not all_elements:
+            logger.warning("No chapters or hadiths found on page")
             return None
 
-        for chapter in soup.find_all('div', class_='chapter'):
+        current_echapno = None
+        sub_chapter_counter = 0
+
+        for element in all_elements:
             try:
-                echapno = chapter.find('div', class_='echapno').text.strip('()')
-                englishchapter = chapter.find('div', class_='englishchapter').text.strip()
-                arabicchapter = chapter.find('div', class_='arabicchapter').text.strip()
-                
-                bulgarianchapter = await translate_text(englishchapter, 'en', 'bg')
-                
-                arabic_achapintro = chapter.find_next_sibling('div', class_='arabic achapintro aconly')
-                arabic_achapintro = arabic_achapintro.text.strip() if arabic_achapintro else ""
-                
-                hadith = chapter.find_next_sibling('div', class_='actualHadithContainer')
+                if 'chapter' in element.get('class', []):
+                    echapno_elem = element.find('div', class_='echapno')
+                    if echapno_elem:
+                        current_echapno = echapno_elem.text.strip('()')
+                        sub_chapter_counter = 0
+                    englishchapter = element.find('div', class_='englishchapter')
+                    englishchapter = englishchapter.text.strip() if englishchapter else f"Chapter: {current_echapno}"
+                    arabicchapter = element.find('div', class_='arabicchapter')
+                    arabicchapter = arabicchapter.text.strip() if arabicchapter else ""
+                    bulgarianchapter = await translate_text(englishchapter, 'en', 'bg')
+                    arabic_achapintro = element.find_next_sibling('div', class_='arabic achapintro aconly')
+                    arabic_achapintro = arabic_achapintro.text.strip() if arabic_achapintro else ""
+                    hadith = element.find_next_sibling('div', class_='actualHadithContainer')
+                elif 'actualHadithContainer' in element.get('class', []):
+                    hadith = element
+                    sub_chapter_counter += 1
+                    englishchapter = f"{sub_chapter_counter}"
+                    arabicchapter = ""
+                    bulgarianchapter = f"{sub_chapter_counter}"
+                    arabic_achapintro = ""
+                else:
+                    continue
+
                 if not hadith:
                     logger.warning("Hadith container not found for chapter on page")
                     continue
@@ -345,15 +361,17 @@ async def scrape_book_page(html):
                 english_hadith_full = hadith.find('div', class_='text_details')
                 arabic_hadith_full = hadith.find('div', class_='arabic_hadith_full')
 
-                if not all([hadith_narrated, english_hadith_full, arabic_hadith_full]):
+                if not all([english_hadith_full, arabic_hadith_full]):
                     logger.warning("Missing hadith elements for chapter on page")
                     continue
 
                 bulgarian_hadith_full = await translate_text(english_hadith_full.text.strip(), 'en', 'bg')
-                
+
                 hadith_reference = hadith.find('table', class_='hadith_reference')
                 hadith_reference_html = str(hadith_reference) if hadith_reference else ""
-                
+
+                echapno = f"{current_echapno}.{sub_chapter_counter}" if current_echapno else str(sub_chapter_counter)
+
                 chapters.append({
                     'echapno': echapno,
                     'englishchapter': englishchapter,
@@ -377,6 +395,7 @@ async def scrape_book_page(html):
             'book_page_bulgarian_name': book_page_bulgarian_name,
             'chapters': chapters
         }
+
     except Exception as e:
         logger.error(f"Unexpected error in scrape_book_page: {str(e)}")
         logger.error(f"HTML content: {html[:500]}...")  # Log the first 500 characters of HTML
@@ -517,29 +536,42 @@ def create_database():
     conn = sqlite3.connect('hadiths.db')
     c = conn.cursor()
     
-    # Check if tables exist
-    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='books'")
-    if c.fetchone() is None:
-        c.execute('''CREATE TABLE IF NOT EXISTS books
-                     (id INTEGER PRIMARY KEY, book_name TEXT, english TEXT, arabic TEXT, colindextitle TEXT, bulgarian_colindextitle TEXT)''')
+    # Create books table
+    c.execute('''CREATE TABLE IF NOT EXISTS books
+                 (id INTEGER PRIMARY KEY, 
+                  book_name TEXT, 
+                  english TEXT, 
+                  arabic TEXT, 
+                  colindextitle TEXT, 
+                  bulgarian_colindextitle TEXT)''')
     
-    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='pages'")
-    if c.fetchone() is None:
-        c.execute('''CREATE TABLE IF NOT EXISTS pages
-                     (id INTEGER PRIMARY KEY, book_id INTEGER, 
-                      book_page_number TEXT, book_page_english_name TEXT, book_page_arabic_name TEXT,
-                      book_page_bulgarian_name TEXT,
-                      FOREIGN KEY (book_id) REFERENCES books(id))''')
+    # Create pages table with ON DELETE CASCADE and ON UPDATE CASCADE
+    c.execute('''CREATE TABLE IF NOT EXISTS pages
+                 (id INTEGER PRIMARY KEY, 
+                  book_id INTEGER, 
+                  book_page_number TEXT, 
+                  book_page_english_name TEXT, 
+                  book_page_arabic_name TEXT, 
+                  book_page_bulgarian_name TEXT,
+                  FOREIGN KEY (book_id) REFERENCES books(id)
+                  ON DELETE CASCADE ON UPDATE CASCADE)''')
     
-    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='chapters'")
-    if c.fetchone() is None:
-        c.execute('''CREATE TABLE IF NOT EXISTS chapters
-                     (id INTEGER PRIMARY KEY, page_id INTEGER, 
-                      echapno TEXT, englishchapter TEXT, arabicchapter TEXT, bulgarianchapter TEXT,
-                      arabic_achapintro TEXT, hadith_narrated TEXT, 
-                      english_hadith_full TEXT, arabic_hadith_full TEXT, bulgarian_hadith_full TEXT,
-                      hadith_reference TEXT,
-                      FOREIGN KEY (page_id) REFERENCES pages(id))''')
+    # Create chapters table with ON DELETE CASCADE and ON UPDATE CASCADE
+    c.execute('''CREATE TABLE IF NOT EXISTS chapters
+                 (id INTEGER PRIMARY KEY, 
+                  page_id INTEGER, 
+                  echapno TEXT, 
+                  englishchapter TEXT, 
+                  arabicchapter TEXT, 
+                  bulgarianchapter TEXT,
+                  arabic_achapintro TEXT, 
+                  hadith_narrated TEXT, 
+                  english_hadith_full TEXT, 
+                  arabic_hadith_full TEXT, 
+                  bulgarian_hadith_full TEXT,
+                  hadith_reference TEXT,
+                  FOREIGN KEY (page_id) REFERENCES pages(id)
+                  ON DELETE CASCADE ON UPDATE CASCADE)''')
     
     conn.commit()
     conn.close()
