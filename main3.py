@@ -14,9 +14,12 @@ from functools import partial
 import aiohttp
 from streamlit.runtime.scriptrunner import RerunException
 from streamlit_extras.stoggle import stoggle
+from streamlit_extras.card import card
 import streamlit_authenticator as stauth
 import yaml
 from yaml.loader import SafeLoader
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
@@ -192,6 +195,46 @@ st.sidebar.button(btn_face, on_click=ChangeTheme)
 if ms.themes["refreshed"] == False:
   ms.themes["refreshed"] = True
   st.experimental_rerun()
+
+# Database setup
+DATABASE_URL = "sqlite:///hadiths.db"
+engine = create_engine(DATABASE_URL, pool_size=10, max_overflow=20)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Caching
+@st.cache_data
+def get_books():
+    conn = sqlite3.connect('hadiths.db')
+    c = conn.cursor()
+    c.execute("SELECT id, book_name, english, arabic FROM books")
+    books = c.fetchall()
+    conn.close()
+    return books
+
+@st.cache_data
+def get_pages(book_id):
+    conn = sqlite3.connect('hadiths.db')
+    c = conn.cursor()
+    c.execute("SELECT id, book_page_number, book_page_bulgarian_name FROM pages WHERE book_id = ? ORDER BY CAST(book_page_number AS INTEGER)", (book_id,))
+    pages = c.fetchall()
+    conn.close()
+    return pages
+
+@st.cache_data
+def get_chapters(page_id):
+    conn = sqlite3.connect('hadiths.db')
+    c = conn.cursor()
+    c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page_id,))
+    chapters = c.fetchall()
+    conn.close()
+    return chapters
 
 # Initialize the translator
 translator = Translator()
@@ -817,7 +860,29 @@ async def main_async():
                         st.error('Потребителското име не е намерено')
                 except Exception as e:
                     st.error(e)
-    
+    audio_files = {
+        "1. СУРА АЛ-ФАТИХА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
+        "2. АЛ-БАКАРА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
+        "3. АЛ ИМРАН": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3")
+    }
+    with st.sidebar.expander("Коран-и керим"):
+        selected_sura = st.selectbox(
+        "Изберете сура",
+        ("1. СУРА АЛ-ФАТИХА", "2. АЛ-БАКАРА", "3. АЛ ИМРАН")
+    )
+
+    # Check if a sura is selected
+    if selected_sura:
+        st.session_state.content_visible = False
+
+        # Display the corresponding audio files
+        audio_file_bg, audio_file_ar = audio_files.get(selected_sura, (None, None))
+        if audio_file_bg and audio_file_ar:
+            st.title(selected_sura)
+            st.caption("Български")
+            st.audio(audio_file_bg, format="audio/mp3")
+            st.caption("Арабски")
+            st.audio(audio_file_ar, format="audio/mp3")
     
     # Search functionality
     search_term = st.sidebar.text_input(
@@ -896,7 +961,7 @@ async def main_async():
                 if i < len(books) - 1:
                     st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)    
     else:
-        st.sidebar.write("No books found in the database. Please scrape some data first.")
+        st.sidebar.write("Няма данни в базата.")
 
     # Initialize session state for chapters if not already initialized
     if "chapters" not in st.session_state:
