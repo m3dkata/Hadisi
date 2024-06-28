@@ -871,19 +871,19 @@ async def main_async():
         ("1. СУРА АЛ-ФАТИХА", "2. АЛ-БАКАРА", "3. АЛ ИМРАН")
     )
 
-    # Check if a sura is selected
-    if selected_sura:
-        st.session_state.content_visible = False
-        change()
+        # Check if a sura is selected
+        if selected_sura:
+            # st.session_state.content_visible = False
+            # change()
 
-        # Display the corresponding audio files
-        audio_file_bg, audio_file_ar = audio_files.get(selected_sura, (None, None))
-        if audio_file_bg and audio_file_ar:
-            st.title(selected_sura)
-            st.caption("Български")
-            st.audio(audio_file_bg, format="audio/mp3")
-            st.caption("Арабски")
-            st.audio(audio_file_ar, format="audio/mp3")
+            # Display the corresponding audio files
+            audio_file_bg, audio_file_ar = audio_files.get(selected_sura, (None, None))
+            if audio_file_bg and audio_file_ar:
+                st.subheader(selected_sura)
+                st.caption("Български")
+                st.audio(audio_file_bg, format="audio/mp3")
+                st.caption("Арабски")
+                st.audio(audio_file_ar, format="audio/mp3")
     
     # Search functionality
     search_term = st.sidebar.text_input(
