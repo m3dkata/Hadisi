@@ -598,6 +598,11 @@ def create_database():
                   hadith_reference TEXT,
                   FOREIGN KEY (page_id) REFERENCES pages(id)
                   ON DELETE CASCADE ON UPDATE CASCADE)''')
+    # Add indexes
+    c.execute('CREATE INDEX IF NOT EXISTS idx_books_book_name ON books(book_name)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_pages_book_id ON pages(book_id)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_chapters_page_id ON chapters(page_id)')
+    c.execute('CREATE INDEX IF NOT EXISTS idx_chapters_echapno ON chapters(echapno)')
     
     conn.commit()
     conn.close()
