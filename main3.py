@@ -540,7 +540,8 @@ async def populate_database(book_name, start_page, end_page):
                                        chapter['english_hadith_full'], chapter['arabic_hadith_full'], chapter['bulgarian_hadith_full'],
                                        chapter['hadith_reference']))
                         else:
-                            st.caption(f":blue[Глава {chapter['echapno']} вече съществува. Пропускане.]")
+                            pass
+                            # st.caption(f":blue[Глава {chapter['echapno']} вече съществува. Пропускане.]")
                    
                     conn.commit()
                     st.caption(f"Обработена: Глава {page_number} - {page_data['book_page_english_name']} ({len(page_data['chapters'])} хадиса)")
