@@ -985,9 +985,9 @@ async def main_async():
                 except Exception as e:
                     st.error(e)
     audio_files = {
-        "1. СУРА АЛ-ФАТИХА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
-        "2. АЛ-БАКАРА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
-        "3. АЛ ИМРАН": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3")
+        "1. СУРА АЛ-ФАТИХА": ("audio/bg-fatiha.mp3", "audio/ar-fatiha.mp3"),
+        # "2. АЛ-БАКАРА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
+        # "3. АЛ ИМРАН": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3")
     }
     with st.sidebar.expander("Слушай Коран-и керим"):
         selected_sura = st.selectbox(
