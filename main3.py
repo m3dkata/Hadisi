@@ -1008,9 +1008,9 @@ async def main_async():
             if audio_file_bg and audio_file_ar:
                 st.subheader(selected_sura)
                 st.caption("Български")
-                st.audio(audio_file_bg, format="audio/mp3")
+                st.audio(audio_file_bg, format="audio/mpeg")
                 st.caption("Арабски")
-                st.audio(audio_file_ar, format="audio/mp3")
+                st.audio(audio_file_ar, format="audio/mpeg")
     
     # Search functionality
     search_term = st.sidebar.text_input(
