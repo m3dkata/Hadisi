@@ -725,17 +725,17 @@ def display_chapter(cursor, chapter_id):
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-            else:
-                st.markdown(f"""
-                <div class="custom-container">
-                    <div class="custom-column">
-                        <p class="custom-text">{bulgarian_text}</p>
-                    </div>
-                    <div class="custom-column">
-                        <p class="custom-text">{arabic_text}</p>
-                    </div>
+        else:
+            st.markdown(f"""
+            <div class="custom-container">
+                <div class="custom-column">
+                    <p class="custom-text">{bulgarian_text}</p>
                 </div>
-                """, unsafe_allow_html=True)
+                <div class="custom-column">
+                    <p class="custom-text">{arabic_text}</p>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
 
         # with col3:
         #     english_text = chapter_data[6]
