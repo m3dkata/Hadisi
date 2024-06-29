@@ -1021,7 +1021,7 @@ async def main_async():
 
     c.execute("SELECT id, book_name, english, arabic FROM books")
     books = c.fetchall()
-
+    
     if books:
         for i, book in enumerate(books):
             if search_term:
