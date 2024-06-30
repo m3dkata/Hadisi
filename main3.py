@@ -24,6 +24,8 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import bcrypt
 from st_keyup import st_keyup
+import streamlit.components.v1 as components
+import re
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
@@ -43,6 +45,47 @@ st.set_page_config(
         'About': None
     }
 )
+
+def custom_html(html_string, width=None, height=None, scrolling=False):
+    # Remove the allow-downloads attribute
+    html_string = re.sub(r'sandbox="([^"]*)\s*allow-downloads\s*([^"]*)"', r'sandbox="\1 \2"', html_string)
+    return components.html(html_string, width, height, scrolling)
+
+# Override Streamlit's html component
+components.html = custom_html
+
+st.markdown("""
+<script>
+// Polyfill for RegExp lookbehind
+if (!RegExp.prototype.lookbehind) {
+    RegExp.prototype.lookbehind = function(str) {
+        return str.match(this);
+    };
+}
+
+// Override problematic RegExp methods
+var originalExec = RegExp.prototype.exec;
+RegExp.prototype.exec = function(str) {
+    try {
+        return originalExec.call(this, str);
+    } catch (e) {
+        console.warn('RegExp compatibility issue:', e.message);
+        return null;
+    }
+};
+
+var originalTest = RegExp.prototype.test;
+RegExp.prototype.test = function(str) {
+    try {
+        return originalTest.call(this, str);
+    } catch (e) {
+        console.warn('RegExp compatibility issue:', e.message);
+        return false;
+    }
+};
+</script>
+""", unsafe_allow_html=True)
+
 
 with open('config.yaml') as file:
     config = yaml.load(file, Loader=SafeLoader)
@@ -69,14 +112,18 @@ hide_streamlit_style = """
 #MainMenu {visibility: hidden;}
 .stActionButton {visibility: hidden;}
 .block-container {
-    padding-top: 0.2rem;
+    padding-top: 0;
     padding-left: 2rem;
     padding-right: 2rem;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
+[data-testid="stSidebarUserContent"] {
+    margin-top: 2rem;
+    padding-top: 0rem;
+}
 @media (max-width: 640px) {
     .block-container {
-    padding-top: 0.2rem;
+    padding-top: 1px;
     padding-left: 1rem;
     padding-right: 1rem;
     }
@@ -645,8 +692,8 @@ def display_chapter(cursor, chapter_id):
         }
         .custom-column {
             width: 50%;
-            margin-bottom: 5px;
-            padding: 5px;
+            margin: 2px;
+            padding: 2px;
             border: 1px solid;
             border-color: inherit;
             border-radius: 10px;
@@ -861,7 +908,7 @@ async def main_async():
     # Sidebar with tree-like structure
     HORIZONTAL_RED = "main_logo.png"
     ICON_RED = "logo.png"
-    st.logo(ICON_RED)
+    # st.logo(ICON_RED)
     
     if st.session_state.content_visible:
         col1, col2, col3 = st.columns([2,1,2])
@@ -1160,7 +1207,7 @@ async def main_async():
             </style>
             """, unsafe_allow_html=True)
 
-            col = st.columns([2, 2],gap="small", vertical_alignment="bottom")
+            col = st.columns([2, 2],gap="small") # , vertical_alignment="bottom"
 
             with col[0]:
                 if st.button("&lt; ПРЕДИШЕН", key="prev_btn"):
