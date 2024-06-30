@@ -23,6 +23,7 @@ from yaml.loader import SafeLoader
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import bcrypt
+from st_keyup import st_keyup
 
 if 'sidebar_state' not in st.session_state:
     st.session_state.sidebar_state = 'expanded'
@@ -644,13 +645,18 @@ def display_chapter(cursor, chapter_id):
         }
         .custom-column {
             width: 50%;
+            margin-bottom: 5px;
             padding: 5px;
-            box-sizing: border-box;
+            border: 1px solid;
+            border-color: inherit;
+            border-radius: 10px;
         }
         .custom-text {
             word-wrap: break-word;
             overflow-wrap: break-word;
             font-size: 1.0em;
+            margin: 1px;
+            padding: 1px;
         }
         @media (max-width: 640px) {
             .custom-text {
@@ -695,7 +701,7 @@ def display_chapter(cursor, chapter_id):
         arabic_text = chapter_data[7]
         # Add edit button and editing functionality
         if st.session_state["authentication_status"] and st.session_state["username"] == "moderator":
-            edit_button = st.button(":lower_left_ballpoint_pen:", key=f"edit_button_{chapter_id}")
+            edit_button = st.button(":lower_left_ballpoint_pen: РЕДАКТИРАНЕ", key=f"edit_button_{chapter_id}")
             if edit_button:
                 st.session_state[f"editing_{chapter_id}"] = True
 
