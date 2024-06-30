@@ -8,9 +8,18 @@
 
 [client]
 # toolbarMode = "auto"
+showErrorDetails = true
 showSidebarNavigation = true
 
 [server]
-enableCORS = true
-enableXsrfProtection = true
+enableCORS = false
+enableXsrfProtection = false
 maxUploadSize = 200
+
+[browser]
+serverAddress = "localhost"
+gatherUsageStats = false
+
+[runner]
+fastReruns = true
+
