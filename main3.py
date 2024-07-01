@@ -118,7 +118,7 @@ hide_streamlit_style = """
 footer {visibility: hidden;}
 header {visibility: hidden;}
 [data-testid="stSidebarUserContent"] {
-    margin-top: 2rem;
+    margin-top: 10px;
     padding-top: 0rem;
 }
 @media (max-width: 640px) {
@@ -263,6 +263,7 @@ def get_db():
         db.close()
 
 # Caching
+# Caching database queries
 @st.cache_data
 def get_books():
     conn = sqlite3.connect('hadiths.db')
@@ -271,6 +272,43 @@ def get_books():
     books = c.fetchall()
     conn.close()
     return books
+
+@st.cache_data
+def get_matching_pages(book_id, search_term):
+    conn = sqlite3.connect('hadiths.db')
+    c = conn.cursor()
+    c.execute("""
+        SELECT DISTINCT p.id, p.book_page_number, p.book_page_bulgarian_name
+        FROM pages p
+        JOIN chapters c ON p.id = c.page_id
+        WHERE p.book_id = ? AND (
+            LOWER(c.bulgarianchapter) LIKE ? OR
+            LOWER(c.english_hadith_full) LIKE ? OR
+            LOWER(c.bulgarian_hadith_full) LIKE ?
+        )
+        ORDER BY CAST(p.book_page_number AS INTEGER)
+    """, (book_id, f"%{search_term.lower()}%", f"%{search_term.lower()}%", f"%{search_term.lower()}%"))
+    pages = c.fetchall()
+    conn.close()
+    return pages
+
+@st.cache_data
+def get_matching_chapters(page_id, search_term):
+    conn = sqlite3.connect('hadiths.db')
+    c = conn.cursor()
+    c.execute("""
+        SELECT id, echapno, bulgarianchapter
+        FROM chapters
+        WHERE page_id = ? AND (
+            LOWER(bulgarianchapter) LIKE ? OR
+            LOWER(english_hadith_full) LIKE ? OR
+            LOWER(bulgarian_hadith_full) LIKE ?
+        )
+        ORDER BY echapno
+    """, (page_id, f"%{search_term.lower()}%", f"%{search_term.lower()}%", f"%{search_term.lower()}%"))
+    chapters = c.fetchall()
+    conn.close()
+    return chapters
 
 @st.cache_data
 def get_pages(book_id):
@@ -289,6 +327,7 @@ def get_chapters(page_id):
     chapters = c.fetchall()
     conn.close()
     return chapters
+
 
 # Initialize the translator
 translator = Translator()
@@ -1075,72 +1114,45 @@ async def main_async():
     c.execute("SELECT id, book_name, english, arabic FROM books")
     books = c.fetchall()
     
+    books = get_books()
+    
     if books:
         for i, book in enumerate(books):
             if search_term:
-                c.execute("""
-                    SELECT DISTINCT p.id, p.book_page_number, p.book_page_bulgarian_name
-                    FROM pages p
-                    JOIN chapters c ON p.id = c.page_id
-                    WHERE p.book_id = ? AND (
-                        LOWER(c.bulgarianchapter) LIKE ? OR
-                        LOWER(c.english_hadith_full) LIKE ? OR
-                        LOWER(c.bulgarian_hadith_full) LIKE ?
-                    )
-                    ORDER BY CAST(p.book_page_number AS INTEGER)
-                """, (book[0], f"%{search_term.lower()}%", f"%{search_term.lower()}%", f"%{search_term.lower()}%"))
-                matching_pages = c.fetchall()
+                matching_pages = get_matching_pages(book[0], search_term)
                 
                 if matching_pages:
                     st.sidebar.checkbox(f":{book[2].upper()} ({book[3]})", key=f"book_{book[0]}", value=True)
                     for page in matching_pages:
                         st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}", value=True)
-                        c.execute("""
-                            SELECT id, echapno, bulgarianchapter
-                            FROM chapters
-                            WHERE page_id = ? AND (
-                                LOWER(bulgarianchapter) LIKE ? OR
-                                LOWER(english_hadith_full) LIKE ? OR
-                                LOWER(bulgarian_hadith_full) LIKE ?
-                            )
-                            ORDER BY echapno
-                        """, (page[0], f"%{search_term.lower()}%", f"%{search_term.lower()}%", f"%{search_term.lower()}%"))
-                        chapters = c.fetchall()
+                        chapters = get_matching_chapters(page[0], search_term)
                         for chapter in chapters:
                             chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
                             if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                 st.session_state.chapter_index = chapters.index(chapter)
                                 st.session_state.chapters = chapters
-                                st.session_state.chapter_selected = True  # Set the flag to True
+                                st.session_state.chapter_selected = True
                                 st.session_state.content_visible = False
                                 st.experimental_rerun()
-                                # display_chapter(c, chapter[0])
-
-                # Add a divider after each book with matching results, except for the last one
+                
                 if matching_pages and i < len(books) - 1:
                     st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
             else:
-                # Original structure when no search term is provided
                 if st.sidebar.checkbox(f"{book[2].upper()} ({book[3]})", key=f"book_{book[0]}"):
-                    c.execute("SELECT id, book_page_number, book_page_bulgarian_name FROM pages WHERE book_id = ? ORDER BY CAST(book_page_number AS INTEGER)", (book[0],))
-                    pages = c.fetchall()
+                    pages = get_pages(book[0])
                     for page in pages:
                         if st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}"):
-                            c.execute("SELECT id, echapno, bulgarianchapter FROM chapters WHERE page_id = ? ORDER BY echapno", (page[0],))
-                            chapters = c.fetchall()
+                            chapters = get_chapters(page[0])
                             for chapter in chapters:
                                 if st.sidebar.button(f"{chapter[1]}: {chapter[2][:30].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
-                                    st.session_state.chapter_selected = True  # Set the flag to True
+                                    st.session_state.chapter_selected = True
                                     st.session_state.content_visible = False
                                     st.experimental_rerun()
-                                    # display_chapter(c, chapter[0])
-
                 
-                # Add a divider after each book, except for the last one
                 if i < len(books) - 1:
-                    st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)    
+                    st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
     else:
         st.sidebar.write("Няма данни в базата.")
 
