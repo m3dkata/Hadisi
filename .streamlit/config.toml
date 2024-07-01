@@ -12,13 +12,13 @@ showErrorDetails = true
 showSidebarNavigation = true
 
 [server]
-enableCORS = false
-enableXsrfProtection = false
+enableCORS = true
+enableXsrfProtection = true
 maxUploadSize = 200
 
-[browser]
-serverAddress = "localhost"
-gatherUsageStats = false
+# [browser]
+# serverAddress = "localhost"
+# gatherUsageStats = false
 
 [runner]
 fastReruns = true
