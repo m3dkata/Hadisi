@@ -47,9 +47,7 @@ with col2:
     st.image("logo.png", width=200, use_column_width="never")
     st.title("Хадисите на Мухаммед(С.А.С)")
     st.title("нов адрес")
-    st.write("За да, посетете новия адрес натиснете бутона.")
-    if st.button("ОТИДИ НА НОВИЯ АДРЕС"):
-        st.markdown(f'<meta http-equiv="refresh" content="0;url=https://hadisi.kidn3y.com/">', unsafe_allow_html=True)
+    st.write("За да, посетете новия адрес натиснете линка.")
     st.header("https://hadisi.kidn3y.com/")
     
 with col3:
