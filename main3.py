@@ -47,7 +47,7 @@ with col2:
     st.image("logo.png", width=200, use_column_width="never")
     st.title("Хадисите на Мухаммед(С.А.С)")
     st.title("нов адрес")
-    st.write("За да, посетете новия адрес натиснете линка.")
+    st.write("За да, посетите новия адрес натиснете линка.")
     st.header("https://hadisi.kidn3y.com/")
     
 with col3:
