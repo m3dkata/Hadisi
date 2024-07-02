@@ -136,10 +136,10 @@ st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown("""
 <style>
     .sidebar-divider {
-        margin-top: 5px;
-        margin-bottom: 5px;
-        border-top: 2px solid red;
-        color: red;
+        margin-top: 1px;
+        margin-bottom: 1px;
+        border-top: 1px solid;
+        color: {theme.textColor} inherit;
     }
     #github{
         background-image: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0iY3VycmVudENvbG9yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNvbG9yPSIjMzEzMzNGIj48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGNsaXAtcnVsZT0iZXZlbm9kZCIgZD0iTTguMDA2NjIgMC4zNTAwMDZDMy41NzkxNyAwLjM1MDAwNiAwIDMuODU1NCAwIDguMTkyMDZDMCAxMS42NTg2IDIuMjkzMjkgMTQuNTkyOSA1LjQ3NDcgMTUuNjMxNUM1Ljg3MjQ2IDE1LjcwOTUgNi4wMTgxNiAxNS40NjI3IDYuMDE4MTYgMTUuMjU1MUM2LjAxODE2IDE1LjA3MzMgNi4wMDUwNSAxNC40NTAxIDYuMDA1MDUgMTMuODAwOUMzLjc3NzggMTQuMjY4MyAzLjMxMzk5IDEyLjg2NiAzLjMxMzk5IDEyLjg2NkMyLjk1NjA2IDExLjk1NzIgMi40MjU3MiAxMS43MjM2IDIuNDI1NzIgMTEuNzIzNkMxLjY5Njc0IDExLjI0MzIgMi40Nzg4MiAxMS4yNDMyIDIuNDc4ODIgMTEuMjQzMkMzLjI4NzQ0IDExLjI5NTEgMy43MTE3NSAxMi4wNDgyIDMuNzExNzUgMTIuMDQ4MkM0LjQyNzQ1IDEzLjI0MjUgNS41ODA3NCAxMi45MDUxIDYuMDQ0NzEgMTIuNjk3M0M2LjExMDkyIDEyLjE5MDkgNi4zMjMxNSAxMS44NDA0IDYuNTQ4NSAxMS42NDU3QzQuNzcyMTEgMTEuNDYzOSAyLjkwMzEyIDEwLjc4ODggMi45MDMxMiA3Ljc3NjUxQzIuOTAzMTIgNi45MTk2IDMuMjIxMDcgNi4yMTg1MiAzLjcyNDg2IDUuNjczMjdDMy42NDUzOCA1LjQ3ODU2IDMuMzY2OTMgNC42NzM0NCAzLjgwNDUxIDMuNTk1ODRDMy44MDQ1MSAzLjU5NTg0IDQuNDgwNTUgMy4zODgwNyA2LjAwNDg4IDQuNDAwODFDNi42NTc1IDQuMjI5MTUgNy4zMzA1NCA0LjE0MTgzIDguMDA2NjIgNC4xNDEwOUM4LjY4MjY2IDQuMTQxMDkgOS4zNzE4MSA0LjIzMjA3IDEwLjAwODIgNC40MDA4MUMxMS41MzI3IDMuMzg4MDcgMTIuMjA4NyAzLjU5NTg0IDEyLjIwODcgMy41OTU4NEMxMi42NDYzIDQuNjczNDQgMTIuMzY3NyA1LjQ3ODU2IDEyLjI4ODIgNS42NzMyN0MxMi44MDUzIDYuMjE4NTIgMTMuMTEwMSA2LjkxOTYgMTMuMTEwMSA3Ljc3NjUxQzEzLjExMDEgMTAuNzg4OCAxMS4yNDExIDExLjQ1MDggOS40NTE0NiAxMS42NDU3QzkuNzQzMTggMTEuODkyMyA5Ljk5NDkyIDEyLjM1OTcgOS45OTQ5MiAxMy4wOTk4QzkuOTk0OTIgMTQuMTUxNCA5Ljk4MTgxIDE0Ljk5NTQgOS45ODE4MSAxNS4yNTVDOS45ODE4MSAxNS40NjI3IDEwLjEyNzcgMTUuNzA5NSAxMC41MjUzIDE1LjYzMTZDMTMuNzA2NyAxNC41OTI4IDE2IDExLjY1ODYgMTYgOC4xOTIwNkMxNi4wMTMxIDMuODU1NCAxMi40MjA4IDAuMzUwMDA2IDguMDA2NjIgMC4zNTAwMDZaIj48L3BhdGg+PC9zdmc+");
@@ -643,6 +643,8 @@ async def populate_database(book_name, start_page, end_page):
     status_text.text("Всички страници са обработени.")
     progress_bar.progress(1.0)
     st.success("Базата данни е актуализирана успешно с преводите!")
+    st.cache_data.clear()
+    st.experimental_rerun()
 
 
 def create_database():
@@ -1014,6 +1016,8 @@ async def main_async():
                         with st.spinner(f"Скрейпване, превод и актуализиране на база данни за {book_name} (глави {start_page} до {end_page})... Това може да отнеме известно време."):
                             await populate_database(book_name, start_page, end_page)
                         st.success("Базата данни е актуализирана успешно с преводи!")
+                        # Refresh the books data
+                        books = get_books()
             with col2:  
                 if st.button("Обновяване на данните за книгите"):
                     if os.path.exists('books_data.json'):
@@ -1080,30 +1084,150 @@ async def main_async():
                 except Exception as e:
                     st.error(e)
     audio_files = {
-        "1. СУРА АЛ-ФАТИХА": ("audio/bg-fatiha.mp3", "audio/ar-fatiha.mp3"),
-        # "2. АЛ-БАКАРА": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3"),
-        # "3. АЛ ИМРАН": ("audio/1. АЛ-ФАТИХА.mp3", "audio/1. СУРА АЛ-ФАТИХА.mp3")
+        "1. АЛ-ФАТИХА": ("audio/bg/1. СУРА АЛ-ФАТИХА.mp3", "audio/ar/1. СУРА АЛ-ФАТИХА.mp3"),
+        "2. АЛ-БАКАРА": ("audio/bg/2. СУРА АЛ-БАКАРА.mp3", "audio/ar/2. СУРА АЛ-БАКАРА.mp3"),
+        "3. АЛ-ИМРАН": ("audio/bg/3. СУРА АЛ-ИМРАН.mp3", "audio/ar/3. СУРА АЛ-ИМРАН.mp3"),
+        "4. АН-НИСА": ("audio/bg/4. СУРА АН-НИСА.mp3", "audio/ar/4. СУРА АН-НИСА.mp3"),
+        "5. АЛ-МАИДА": ("audio/bg/5. СУРА АЛ-МАИДА.mp3", "audio/ar/5. СУРА АЛ-МАИДА.mp3"),
+        "6. АЛ-АНАМ": ("audio/bg/6. СУРА АЛ-АНАМ.mp3", "audio/ar/6. СУРА АЛ-АНАМ.mp3"),
+        "7. АЛ-ААРАФ": ("audio/bg/7. СУРА АЛ-ААРАФ.mp3", "audio/ar/7. СУРА АЛ-ААРАФ.mp3"),
+        "8. АЛ-АНФАЛ": ("audio/bg/8. СУРА АЛ-АНФАЛ.mp3", "audio/ar/8. СУРА АЛ-АНФАЛ.mp3"),
+        "9. АТ-ТАУБА": ("audio/bg/9. СУРА АТ-ТАУБА.mp3", "audio/ar/9. СУРА АТ-ТАУБА.mp3"),
+        "10. ЮНУС": ("audio/bg/10. СУРА ЮНУС.mp3", "audio/ar/10. СУРА ЮНУС.mp3"),
+        "11. ХУД": ("audio/bg/11. СУРА ХУД.mp3", "audio/ar/11. СУРА ХУД.mp3"),
+        "12. ЮСУФ": ("audio/bg/12. СУРА ЮСУФ.mp3", "audio/ar/12. СУРА ЮСУФ.mp3"),
+        "13. АР-РААД": ("audio/bg/13. СУРА АР-РААД.mp3", "audio/ar/13. СУРА АР-РААД.mp3"),
+        "14. ИБРАХИМ": ("audio/bg/14. СУРА ИБРАХИМ.mp3", "audio/ar/14. СУРА ИБРАХИМ.mp3"),
+        "15. АЛ-ХИДЖР": ("audio/bg/15. СУРА АЛ-ХИДЖР.mp3", "audio/ar/15. СУРА АЛ-ХИДЖР.mp3"),
+        "16. АН-НАХЛ": ("audio/bg/16. СУРА АН-НАХЛ.mp3", "audio/ar/16. СУРА АН-НАХЛ.mp3"),
+        "17. АЛ-ИСРА": ("audio/bg/17. СУРА АЛ-ИСРА.mp3", "audio/ar/17. СУРА АЛ-ИСРА.mp3"),
+        "18. АЛ-КАХФ": ("audio/bg/18. СУРА АЛ-КАХФ.mp3", "audio/ar/18. СУРА АЛ-КАХФ.mp3"),
+        "19. МАРИАМ": ("audio/bg/19. СУРА МАРИАМ.mp3", "audio/ar/19. СУРА МАРИАМ.mp3"),
+        "20. ТА ХА": ("audio/bg/20. CYPA TA XA.mp3", "audio/ar/20. CYPA TA XA.mp3"),
+        "21. АЛ-АНБИЯ": ("audio/bg/21. СУРА АЛ-АНБИЯ.mp3", "audio/ar/21. СУРА АЛ-АНБИЯ.mp3"),
+        "22. АЛ-ХАДЖ": ("audio/bg/22. СУРА АЛ-ХАДЖ.mp3", "audio/ar/22. СУРА АЛ-ХАДЖ.mp3"),
+        "23. АЛ-МУАМИНУН": ("audio/bg/23. СУРА АЛ-МУАМИНУН.mp3", "audio/ar/23. СУРА АЛ-МУАМИНУН.mp3"),
+        "24. АН-НУР": ("audio/bg/24. СУРА АН-НУР.mp3", "audio/ar/24. СУРА АН-НУР.mp3"),
+        "25. АЛ-ФУРКАН": ("audio/bg/25. СУРА АЛ-ФУРКАН.mp3", "audio/ar/25. СУРА АЛ-ФУРКАН.mp3"),
+        "26. АШ-ШУАРА": ("audio/bg/26. СУРА АШ-ШУАРА.mp3", "audio/ar/26. СУРА АШ-ШУАРА.mp3"),
+        "27. АН-НАМЛ": ("audio/bg/27. СУРА АН-НАМЛ.mp3", "audio/ar/27. СУРА АН-НАМЛ.mp3"),
+        "28. АЛ-КАСАС": ("audio/bg/28. СУРА АЛ-КАCAC.mp3", "audio/ar/28. СУРА АЛ-КАCAC.mp3"),
+        "29. АЛ-АНКАБУТ": ("audio/bg/29. СУРА АЛ-АНКАБУТ.mp3", "audio/ar/29. СУРА АЛ-АНКАБУТ.mp3"),
+        "30. АР-РУМ": ("audio/bg/30. СУРА АР-РУМ.mp3", "audio/ar/30. СУРА АР-РУМ.mp3"),
+        "31. ЛУКМАН": ("audio/bg/31. СУРА ЛУКМАН.mp3", "audio/ar/31. СУРА ЛУКМАН.mp3"),
+        "32. АС-САДЖДА": ("audio/bg/32. СУРА АС-САДЖДА.mp3", "audio/ar/32. СУРА АС-САДЖДА.mp3"),
+        "33. АЛ-АХЗАБ": ("audio/bg/33.СУРА АЛ-АХЗАБ.mp3", "audio/ar/33.СУРА АЛ-АХЗАБ.mp3"),
+        "34. САБА": ("audio/bg/34. СУРА САБА.mp3", "audio/ar/34. СУРА САБА.mp3"),
+        "35. ФАТИР": ("audio/bg/35. СУРА ФАТИР.mp3", "audio/ar/35. СУРА ФАТИР.mp3"),
+        "36. ЙА СИН": ("audio/bg/36. СУРА ЙА СИН.mp3", "audio/ar/36. СУРА ЙА СИН.mp3"),
+        "37. АС-САФФАТ": ("audio/bg/37. СУРА АС-САФФАТ.mp3", "audio/ar/37. СУРА АС-САФФАТ.mp3"),
+        "38. САД": ("audio/bg/38. СУРА САД.mp3", "audio/ar/38. СУРА САД.mp3"),
+        "39. АЗ-ЗУМАР": ("audio/bg/39. СУРА АЗ-ЗУМАР.mp3", "audio/ar/39. СУРА АЗ-ЗУМАР.mp3"),
+        "40. ГАФИР": ("audio/bg/40. СУРА ГАФИР.mp3", "audio/ar/40. СУРА ГАФИР.mp3"),
+        "41. ФУССИЛАТ": ("audio/bg/41. СУРА ФУССИЛАТ.mp3", "audio/ar/41. СУРА ФУССИЛАТ.mp3"),
+        "42. АШ-ШУРА": ("audio/bg/42. СУРА АШ-ШУРА.mp3", "audio/ar/42. СУРА АШ-ШУРА.mp3"),
+        "43. АЗ-ЗУХРУФ": ("audio/bg/43. СУРА АЗ-ЗУХРУФ.mp3", "audio/ar/43. СУРА АЗ-ЗУХРУФ.mp3"),
+        "44. АД-ДУХАН": ("audio/bg/44. СУРА АД-ДУХАН.mp3", "audio/ar/44. СУРА АД-ДУХАН.mp3"),
+        "45. АЛ-ДЖАСИЯ": ("audio/bg/45. СУРА АЛ-ДЖАСИЯ.mp3", "audio/ar/45. СУРА АЛ-ДЖАСИЯ.mp3"),
+        "46. АЛ-АХКАФ": ("audio/bg/46. СУРА АЛ-АХКАФ.mp3", "audio/ar/46. СУРА АЛ-АХКАФ.mp3"),
+        "47. МУХАММЕД": ("audio/bg/47. СУРА МУХАММЕД.mp3", "audio/ar/47. СУРА МУХАММЕД.mp3"),
+        "48. АЛ-ФАТХ": ("audio/bg/48. СУРА АЛ-ФАТХ.mp3", "audio/ar/48. СУРА АЛ-ФАТХ.mp3"),
+        "49. АЛ-ХУДЖУРАТ": ("audio/bg/49. СУРА АЛ-ХУДЖУРАТ.mp3", "audio/ar/49. СУРА АЛ-ХУДЖУРАТ.mp3"),
+        "50. КАФ": ("audio/bg/50. СУРА КАФ.mp3", "audio/ar/50. СУРА КАФ.mp3"),
+        "51. АЗ-ЗАРИЙАТ": ("audio/bg/51. СУРА АЗ-ЗАРИЙАТ.mp3", "audio/ar/51. СУРА АЗ-ЗАРИЙАТ.mp3"),
+        "52. АТ-ТУР": ("audio/bg/52. СУРА АТ-ТУР.mp3", "audio/ar/52. СУРА АТ-ТУР.mp3"),
+        "53. АН-НАДЖМ": ("audio/bg/53. СУРА АН-НАДЖМ.mp3", "audio/ar/53. СУРА АН-НАДЖМ.mp3"),
+        "54. АЛ-КАМАР": ("audio/bg/54. СУРА АЛ-КАМАР.mp3", "audio/ar/54. СУРА АЛ-КАМАР.mp3"),
+        "55. АР-РАХМАН": ("audio/bg/55. СУРА АР-РАХМАН.mp3", "audio/ar/55. СУРА АР-РАХМАН.mp3"),
+        "56. АЛ-УАКИА": ("audio/bg/56. СУРА АЛ-УАКИА.mp3", "audio/ar/56. СУРА АЛ-УАКИА.mp3"),
+        "57. АЛ-ХАДИД": ("audio/bg/57. СУРА АЛ-ХАДИД.mp3", "audio/ar/57. СУРА АЛ-ХАДИД.mp3"),
+        "58. АЛ-МУДЖАДАЛА": ("audio/bg/58. СУРА АЛ-МУДЖАДАЛА.mp3", "audio/ar/58. СУРА АЛ-МУДЖАДАЛА.mp3"),
+        "59. АЛ-ХАШР": ("audio/bg/59. СУРА АЛ-ХАШР.mp3", "audio/ar/59. СУРА АЛ-ХАШР.mp3"),
+        "60. АЛ-МУМТАХАНА": ("audio/bg/60. СУРА АЛ-МУМТАХАНА.mp3", "audio/ar/60. СУРА АЛ-МУМТАХАНА.mp3"),
+        "61. АС-САФФ": ("audio/bg/61. СУРА АС-САФФ.mp3", "audio/ar/61. СУРА АС-САФФ.mp3"),
+        "62. АЛ-ДЖУМУА": ("audio/bg/62. СУРА АЛ-ДЖУМУA.mp3", "audio/ar/62. СУРА АЛ-ДЖУМУA.mp3"),
+        "63. АЛ-МУНАФИКУН": ("audio/bg/63. СУРА АЛ-МУНАФИКУН.mp3", "audio/ar/63. СУРА АЛ-МУНАФИКУН.mp3"),
+        "64. АТ-ТАГАБУН": ("audio/bg/64. СУРА АТ-ТАГАБУН.mp3", "audio/ar/64. СУРА АТ-ТАГАБУН.mp3"),
+        "65. АТ-ТАЛАК": ("audio/bg/65. СУРА АТ-ТАЛАК.mp3", "audio/ar/65. СУРА АТ-ТАЛАК.mp3"),
+        "66. АТ-ТАХРИМ": ("audio/bg/66. СУРА АТ-ТАХРИМ.mp3", "audio/ar/66. СУРА АТ-ТАХРИМ.mp3"),
+        "67. АЛ-МУЛК": ("audio/bg/67. СУРА АЛ-МУЛК.mp3", "audio/ar/67. СУРА АЛ-МУЛК.mp3"),
+        "68. АЛ-КАЛАМ": ("audio/bg/68. СУРА АЛ-КАЛАМ.mp3", "audio/ar/68. СУРА АЛ-КАЛАМ.mp3"),
+        "69. АЛ-ХАККА": ("audio/bg/69. СУРА АЛ-ХАККА.mp3", "audio/ar/69. СУРА АЛ-ХАККА.mp3"),
+        "70. АЛ-МААРИДЖ": ("audio/bg/70. СУРА АЛ-МААРИДЖ.mp3", "audio/ar/70. СУРА АЛ-МААРИДЖ.mp3"),
+        "71. НУХ": ("audio/bg/71. СУРА НУХ.mp3", "audio/ar/71. СУРА НУХ.mp3"),
+        "72. АЛ-ДЖИНН": ("audio/bg/72. СУРА АЛ-ДЖИНН.mp3", "audio/ar/72. СУРА АЛ-ДЖИНН.mp3"),
+        "73. АЛ-МУЗЗАММИЛ": ("audio/bg/73. СУРА АЛ-МУЗЗАММИЛ.mp3", "audio/ar/73. СУРА АЛ-МУЗЗАММИЛ.mp3"),
+        "74. АЛ-МУДДАССИР": ("audio/bg/74. АЛ-МУДДАССИР.mp3", "audio/ar/74. АЛ-МУДДАССИР.mp3"),
+        "75. АЛ-КИЙАМА": ("audio/bg/75. СУРА АЛ-КИЙАМА.mp3", "audio/ar/75. СУРА АЛ-КИЙАМА.mp3"),
+        "76. АЛ-ИНСАН": ("audio/bg/76. СУРА АЛ-ИНСАН.mp3", "audio/ar/76. СУРА АЛ-ИНСАН.mp3"),
+        "77. АЛ-МУРСАЛАТ": ("audio/bg/77. СУРА АЛ-МУРСАЛАТ.mp3", "audio/ar/77. СУРА АЛ-МУРСАЛАТ.mp3"),
+        "78. АН-НАБА": ("audio/bg/78. СУРА АН-НАБА.mp3", "audio/ar/78. СУРА АН-НАБА.mp3"),
+        "79. АН-НАЗИАТ": ("audio/bg/79. СУРА АН-НАЗИАТ.mp3", "audio/ar/79. СУРА АН-НАЗИАТ.mp3"),
+        "80. АБАСА": ("audio/bg/80. СУРА АБАСА.mp3", "audio/ar/80. СУРА АБАСА.mp3"),
+        "81. АТ-ТАКУИР": ("audio/bg/81. СУРА АТ-ТАКУИР.mp3", "audio/ar/81. СУРА АТ-ТАКУИР.mp3"),
+        "82. АЛ-ИНФИТАР": ("audio/bg/82. СУРА АЛ-ИНФИТАР.mp3", "audio/ar/82. СУРА АЛ-ИНФИТАР.mp3"),
+        "83. АЛ-МУТАФФИФИН": ("audio/bg/83. СУРА АЛ-МУТАФФИФИН.mp3", "audio/ar/83. СУРА АЛ-МУТАФФИФИН.mp3"),
+        "84. АЛ-ИНШИКАК": ("audio/bg/84. СУРА АЛ-ИНШИКАК.mp3", "audio/ar/84. СУРА АЛ-ИНШИКАК.mp3"),
+        "85. АЛ-БУРУДЖ": ("audio/bg/85. СУРА АЛ-БУРУДЖ.mp3", "audio/ar/85. СУРА АЛ-БУРУДЖ.mp3"),
+        "86. АТ-ТАРИК": ("audio/bg/86. СУРА АТ-ТАРИК.mp3", "audio/ar/86. СУРА АТ-ТАРИК.mp3"),
+        "87. АЛ-АЛЯ": ("audio/bg/87. СУРА АЛ-АЛЯ.mp3", "audio/ar/87. СУРА АЛ-АЛЯ.mp3"),
+        "88. АЛ-ГАШИЯ": ("audio/bg/88. СУРА АЛ-ГАШИЯ.mp3", "audio/ar/88. СУРА АЛ-ГАШИЯ.mp3"),
+        "89. АЛ-ФАДЖР": ("audio/bg/89. СУРА АЛ-ФАДЖР.mp3", "audio/ar/89. СУРА АЛ-ФАДЖР.mp3"),
+        "90. АЛ-БАЛАД": ("audio/bg/90. СУРА АЛ-БАЛАД.mp3", "audio/ar/90. СУРА АЛ-БАЛАД.mp3"),
+        "91. АШ-ШАМС": ("audio/bg/91. СУРА АШ-ШАМС.mp3", "audio/ar/91. СУРА АШ-ШАМС.mp3"),
+        "92. АЛ-ЛАЙЛ": ("audio/bg/92. СУРА АЛ-ЛАЙЛ.mp3", "audio/ar/92. СУРА АЛ-ЛАЙЛ.mp3"),
+        "93. АД-ДУХА": ("audio/bg/93. СУРА АД-ДУХА.mp3", "audio/ar/93. СУРА АД-ДУХА.mp3"),
+        "94. АЛ-ИНШИРАХ": ("audio/bg/94. СУРА АЛ-ИНШИРАХ.mp3", "audio/ar/94. СУРА АЛ-ИНШИРАХ.mp3"),
+        "95. АТ-ТИН": ("audio/bg/95. СУРА АТ-ТИН.mp3", "audio/ar/95. СУРА АТ-ТИН.mp3"),
+        "96. АЛ-АЛАК": ("audio/bg/96. СУРА АЛ-АЛАК.mp3", "audio/ar/96. СУРА АЛ-АЛАК.mp3"),
+        "97. АЛ-КАДР": ("audio/bg/97. СУРА АЛ-КАДР.mp3", "audio/ar/97. СУРА АЛ-КАДР.mp3"),
+        "98. АЛ-БАЙИНА": ("audio/bg/98. СУРА АЛ-БАЙИНА.mp3", "audio/ar/98. СУРА АЛ-БАЙИНА.mp3"),
+        "99. АЗ-ЗАЛЗАЛА": ("audio/bg/99. СУРА АЗ-ЗАЛЗАЛА.mp3", "audio/ar/99. СУРА АЗ-ЗАЛЗАЛА.mp3"),
+        "100. АЛ-АДИАТ": ("audio/bg/100. СУРА АЛ-АДИАТ.mp3", "audio/ar/100. СУРА АЛ-АДИАТ.mp3"),
+        "101. АЛ-КАРИА": ("audio/bg/101. СУРА АЛ-КАРИА.mp3", "audio/ar/101. СУРА АЛ-КАРИА.mp3"),
+        "102. АТ-ТАКАСУР": ("audio/bg/102. СУРА АТ-ТАКАСУР.mp3", "audio/ar/102. СУРА АТ-ТАКАСУР.mp3"),
+        "103. АЛ-АСР": ("audio/bg/103. СУРА АЛ-АСP.mp3", "audio/ar/103. СУРА АЛ-АСP.mp3"),
+        "104. АЛ-ХУМАЗА": ("audio/bg/104. СУРА АЛ-ХУМАЗА.mp3", "audio/ar/104. СУРА АЛ-ХУМАЗА.mp3"),
+        "105. АЛ-ФИЛ": ("audio/bg/105. СУРА АЛ-ФИЛ.mp3", "audio/ar/105. СУРА АЛ-ФИЛ.mp3"),
+        "106. КУРАЙШ": ("audio/bg/106. СУРА КУРАЙШ.mp3", "audio/ar/106. СУРА КУРАЙШ.mp3"),
+        "107. АЛ-МАУН": ("audio/bg/107. СУРА АЛ-МАУН.mp3", "audio/ar/107. СУРА АЛ-МАУН.mp3"),
+        "108. АЛ-КАУСАР": ("audio/bg/108. СУРА АЛ-КАУСАР.mp3", "audio/ar/108. СУРА АЛ-КАУСАР.mp3"),
+        "109. АЛ-КАФИРУН": ("audio/bg/109. СУРА АЛ-КАФИРУН.mp3", "audio/ar/109. СУРА АЛ-КАФИРУН.mp3"),
+        "110. АН-НАСР": ("audio/bg/110. CYPA AH-HACP.mp3", "audio/ar/110. CYPA AH-HACP.mp3"),
+        "111. АЛ-МАСАД": ("audio/bg/111. СУРА АЛ-МАСАД.mp3", "audio/ar/111. СУРА АЛ-МАСАД.mp3"),
+        "112. АЛ-ИХЛАС": ("audio/bg/112. СУРА АЛ-ИХЛАС.mp3", "audio/ar/112. СУРА АЛ-ИХЛАС.mp3"),
+        "113. АЛ-ФАЛАК": ("audio/bg/113. СУРА АЛ-ФАЛАК.mp3", "audio/ar/113. СУРА АЛ-ФАЛАК.mp3"),
+        "114. АН-НАС": ("audio/bg/114. CYPA AH-HAC.mp3", "audio/ar/114. CYPA AH-HAC.mp3")
     }
     with st.sidebar.expander("Слушай Коран-и керим"):
         selected_sura = st.selectbox(
-        "Изберете сура",
-        ("1. СУРА АЛ-ФАТИХА", "2. АЛ-БАКАРА", "3. АЛ ИМРАН")
-    )
+            "Изберете сура",
+            ["Избери Сура"] + list(audio_files.keys()),
+            index=0
+        )
 
-        # Check if a sura is selected
-        if selected_sura:
-            # st.session_state.content_visible = False
-            # change()
+        if selected_sura != "Избери Сура":
+            audio_file_bg, audio_file_ar = audio_files[selected_sura]
+            st.subheader(selected_sura)
 
-            # Display the corresponding audio files
-            audio_file_bg, audio_file_ar = audio_files.get(selected_sura, (None, None))
-            if audio_file_bg and audio_file_ar:
-                st.subheader(selected_sura)
-                st.caption("Български")
-                st.audio(audio_file_bg, format="audio/mpeg")
-                st.caption("Арабски")
-                st.audio(audio_file_ar, format="audio/mpeg")
-    
+            # Function to check if file exists and play audio
+            def play_audio(file_path, language):
+                if os.path.exists(file_path):
+                    st.caption(language)
+                    st.audio(file_path, format="audio/mpeg")
+                else:
+                    st.warning(f"{language} аудио файл не е намерен.")
+
+            # Play Bulgarian audio
+            play_audio(audio_file_bg, "Български")
+
+            # Play Arabic audio
+            play_audio(audio_file_ar, "Арабски")
+
+            # Display a message if both files are missing
+            if not os.path.exists(audio_file_bg) and not os.path.exists(audio_file_ar):
+                st.error("Аудио файловете за тази сура не са налични. Моля, проверете директорията с аудио файлове.")
+        
     # Search functionality
     search_term = st.sidebar.text_input(
         "Търсене", 
@@ -1111,135 +1235,135 @@ async def main_async():
         key="search_term"
     )
 
-    c.execute("SELECT id, book_name, english, arabic FROM books")
-    books = c.fetchall()
+    # Use a context manager for the database connection
+    with sqlite3.connect('hadiths.db') as conn:
+        c = conn.cursor()
     
-    books = get_books()
-    
-    if books:
-        for i, book in enumerate(books):
-            if search_term:
-                matching_pages = get_matching_pages(book[0], search_term)
-                
-                if matching_pages:
-                    st.sidebar.checkbox(f":{book[2].upper()} ({book[3]})", key=f"book_{book[0]}", value=True)
-                    for page in matching_pages:
-                        st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}", value=True)
-                        chapters = get_matching_chapters(page[0], search_term)
-                        for chapter in chapters:
-                            chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
-                            if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
-                                st.session_state.chapter_index = chapters.index(chapter)
-                                st.session_state.chapters = chapters
-                                st.session_state.chapter_selected = True
-                                st.session_state.content_visible = False
-                                st.experimental_rerun()
-                
-                if matching_pages and i < len(books) - 1:
-                    st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-            else:
-                if st.sidebar.checkbox(f"{book[2].upper()} ({book[3]})", key=f"book_{book[0]}"):
-                    pages = get_pages(book[0])
-                    for page in pages:
-                        if st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}"):
-                            chapters = get_chapters(page[0])
+        books = get_books()
+        
+        if books:
+            for i, book in enumerate(books):
+                if search_term:
+                    matching_pages = get_matching_pages(book[0], search_term)
+                    
+                    if matching_pages:
+                        st.sidebar.checkbox(f":{book[2].upper()} ({book[3]})", key=f"book_{book[0]}", value=True)
+                        for page in matching_pages:
+                            st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}", value=True)
+                            chapters = get_matching_chapters(page[0], search_term)
                             for chapter in chapters:
-                                if st.sidebar.button(f"{chapter[1]}: {chapter[2][:30].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
+                                chapter_text = f"{chapter[1]}: {chapter[2].strip('Глава:')}"
+                                if st.sidebar.button(chapter_text, key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
                                     st.session_state.chapter_index = chapters.index(chapter)
                                     st.session_state.chapters = chapters
                                     st.session_state.chapter_selected = True
                                     st.session_state.content_visible = False
                                     st.experimental_rerun()
-                
-                if i < len(books) - 1:
-                    st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
-    else:
-        st.sidebar.write("Няма данни в базата.")
+                    
+                    if matching_pages and i < len(books) - 1:
+                        st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+                else:
+                    if st.sidebar.checkbox(f"{book[2].upper()} ({book[3]})", key=f"book_{book[0]}"):
+                        pages = get_pages(book[0])
+                        for page in pages:
+                            if st.sidebar.checkbox(f":blue[*{page[1]}: {page[2].upper()}*]", key=f"page_{page[0]}"):
+                                chapters = get_chapters(page[0])
+                                for chapter in chapters:
+                                    if st.sidebar.button(f"{chapter[1]}: {chapter[2][:30].strip('Глава:')}...", key=f"chapter_{chapter[0]}", help="Натиснете за преглед", on_click=change):
+                                        st.session_state.chapter_index = chapters.index(chapter)
+                                        st.session_state.chapters = chapters
+                                        st.session_state.chapter_selected = True
+                                        st.session_state.content_visible = False
+                                        st.experimental_rerun()
+                    
+                    if i < len(books) - 1:
+                        st.sidebar.markdown('<div class="sidebar-divider"></div>', unsafe_allow_html=True)
+        else:
+            st.sidebar.write("Няма данни в базата.")
 
-    # Initialize session state for chapters if not already initialized
-    if "chapters" not in st.session_state:
-        st.session_state.chapters = []
+        # Initialize session state for chapters if not already initialized
+        if "chapters" not in st.session_state:
+            st.session_state.chapters = []
 
-    # Initialize session state for chapter_selected if not already initialized
-    if "chapter_selected" not in st.session_state:
-        st.session_state.chapter_selected = False
+        # Initialize session state for chapter_selected if not already initialized
+        if "chapter_selected" not in st.session_state:
+            st.session_state.chapter_selected = False
 
-    # Add custom CSS to position buttons fixed at bottom left and bottom right
-    # prev, next = st.columns([1, 1], gap="small")
-    
+        # Add custom CSS to position buttons fixed at bottom left and bottom right
+        # prev, next = st.columns([1, 1], gap="small")
+        
 
-    # Add "PREV" and "NEXT" buttons only if a chapter has been selected
-    if st.session_state.chapter_selected:
-        # st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
-        # with bottom():
-            # col1, col2 = st.columns([1, 1])
-            # st.markdown("""
-            # <style>
-            #     div[data-testid="stHorizontalBlock"] {
-            #         width: fit-content !important;
-            #         flex: unset;
-            #     }
-            #     div[data-testid="stHorizontalBlock"] * {
-            #         width: fit-content !important;
-            #     }
-            # </style>
-            # """, unsafe_allow_html=True)
-            # with prev:
-            #     if st.button("< ПРЕДИШЕН", key="prev_btn"):
-            #         if st.session_state.chapter_index > 0:
-            #             st.session_state.chapter_index -= 1
-            # with next:
-            #     if st.button("СЛЕДВАЩ >", key="next_btn"):
-            #         if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-            #             st.session_state.chapter_index += 1
-            # st.markdown('</div>', unsafe_allow_html=True)
-            st.markdown("""
-            <style>
-                div[data-testid="column"] {
-                    width: fit-content !important;
-                    flex: unset;
-                }
-                div[data-testid="column"] * {
-                    width: fit-content !important;
-                }
-                /* Styles for mobile devices */
-                @media (max-width: 640px) {
+        # Add "PREV" and "NEXT" buttons only if a chapter has been selected
+        if st.session_state.chapter_selected:
+            # st.markdown('<div class="fixed-buttons">', unsafe_allow_html=True)
+            # with bottom():
+                # col1, col2 = st.columns([1, 1])
+                # st.markdown("""
+                # <style>
+                #     div[data-testid="stHorizontalBlock"] {
+                #         width: fit-content !important;
+                #         flex: unset;
+                #     }
+                #     div[data-testid="stHorizontalBlock"] * {
+                #         width: fit-content !important;
+                #     }
+                # </style>
+                # """, unsafe_allow_html=True)
+                # with prev:
+                #     if st.button("< ПРЕДИШЕН", key="prev_btn"):
+                #         if st.session_state.chapter_index > 0:
+                #             st.session_state.chapter_index -= 1
+                # with next:
+                #     if st.button("СЛЕДВАЩ >", key="next_btn"):
+                #         if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                #             st.session_state.chapter_index += 1
+                # st.markdown('</div>', unsafe_allow_html=True)
+                st.markdown("""
+                <style>
                     div[data-testid="column"] {
-                        width: 100% !important;
+                        width: fit-content !important;
+                        flex: unset;
                     }
                     div[data-testid="column"] * {
-                        width: 100% !important;
+                        width: fit-content !important;
                     }
-                    .stButton > button {
-                        width: 100%;
-                        padding: 0px 0;
-                        margin: 0px 0;
+                    /* Styles for mobile devices */
+                    @media (max-width: 640px) {
+                        div[data-testid="column"] {
+                            width: 100% !important;
+                        }
+                        div[data-testid="column"] * {
+                            width: 100% !important;
+                        .stButton > button {
+                            width: 100%;
+                            padding: 0px 0;
+                            margin: 0px 0;
+                        }
                     }
-                }
-            </style>
-            """, unsafe_allow_html=True)
+                </style>
+                """, unsafe_allow_html=True)
 
-            col = st.columns([2, 2],gap="small") # , vertical_alignment="bottom"
+                col = st.columns([2, 2],gap="small") # , vertical_alignment="bottom"
 
-            with col[0]:
-                if st.button("&lt; ПРЕДИШЕН", key="prev_btn"):
-                    if st.session_state.chapter_index > 0:
-                        st.session_state.chapter_index -= 1
-            with col[1]:
-                if st.button("СЛЕДВАЩ &gt;", key="next_btn"):
-                    if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
-                        st.session_state.chapter_index += 1        
-
+                with col[0]:
+                    if st.button("&lt; ПРЕДИШЕН", key="prev_btn"):
+                        if st.session_state.chapter_index > 0:
+                            st.session_state.chapter_index -= 1
+                with col[1]:
+                    if st.button("СЛЕДВАЩ &gt;", key="next_btn"):
+                        if st.session_state.chapter_index < len(st.session_state.chapters) - 1:
+                            st.session_state.chapter_index += 1        
 
 
-    # Display the current chapter based on the chapter index
-    if "chapter_index" in st.session_state and "chapters" in st.session_state:
-        current_chapter_index = st.session_state.chapter_index
-        chapters = st.session_state.chapters
-        if 0 <= current_chapter_index < len(chapters):
-            display_chapter(c, chapters[current_chapter_index][0]) # Access the chapter ID correctly
 
-    conn.close()
+        # Display the current chapter based on the chapter index
+        if "chapter_index" in st.session_state and "chapters" in st.session_state:
+            current_chapter_index = st.session_state.chapter_index
+            chapters = st.session_state.chapters
+            if 0 <= current_chapter_index < len(chapters):
+                display_chapter(c, chapters[current_chapter_index][0]) # Access the chapter ID correctly
+
+        # conn.close()
 
 if __name__ == "__main__":
     asyncio.run(main_async())
